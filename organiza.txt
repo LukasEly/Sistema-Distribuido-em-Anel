@@ -1,0 +1,131 @@
+Cliente:
+
+    Atributos:
+
+        - Nome 
+        - ip destino
+        - porta destino
+        - tempo com o token (segundos)
+        - haveToken
+        - Lista de pacotes (fila)
+        - Lista de pacotes enviados 
+
+    Metodos:
+
+        - inicialização do cliente (leitura do arquivo .conf)
+        - Inserir mensagem na fila (já insere como pacote ??? spah q é melhor)
+        - handle mensagem:
+
+            -> if(pacote.type == token)
+
+                - handle token
+
+               else 
+                    switch(pacote.estado)
+                        - handle ack
+                        - handle nack
+                        - handle nao existe
+
+        
+
+Token Leader -> extende o Cliente: (herança)
+
+    Atributos:
+
+        - Tempo atual de token (thread counter)
+
+    Metodos: 
+
+        - Gerar token
+
+Pacote:
+
+    Atributos:
+
+        - type
+        - Header: (no caso de token, não existe)
+
+            - estado da mensagem (string):
+
+                -> Enum {
+                    - naoexiste
+                    - NACK
+                    - ACK
+                }
+
+            - nome origem
+            - nome destino
+            - crc32 (controle de erro)
+
+        - Payload (no caso de token, não existe)
+
+
+Console:
+    
+    Metodos:
+
+        - Cria mensagem (unicast)
+        - Cria mensagem (broadcast) -> não tem inserção de falhas?
+        - Tira token do anel
+        - coloca token no anel
+        - adicionar erros em pacotes
+        - printar log
+        - sair
+    
+Inserção de falhas:
+
+    Metodos:
+
+        - Adicionar erro nos pacotes
+        - Retirar token do anel
+        - Adicionar token no anel
+
+[Threads]
+Main thread:
+
+    - Console
+    - Log
+
+
+thread de recepção de mensagens: (talvez seja interessante criar uma entidade packetManager)
+
+    - implementar com o select a recepção de mensagens
+
+(no caso de token leader)
+thread de contagem de tempo:
+
+    - conta o tempo do token desde que enviado
+
+
+
+DUVIDAS / FALHAS :
+
+    - mensagem ao ser enviada, fica na lista de mensagens ou é removida?
+
+        -> Se removida:
+                
+            - se perder o pacote, a mensagem se perde para sempre
+            - se pacote chegar com nack, mensagem precisa ser inserida novamente na lista para retransmitir no próximo token (lista tem limite de tamanho, adiciona mesmo estourando o espaço?)
+        
+        -> Se não removida:
+
+            - E se chegar outro token?
+            
+                - envia mensagem novamente? (vai dar duplicação de pacote)
+                - não envia mensagem (e se pacote infinitamente se perder? vai ficar eternamente preso)
+                - só repassa o token (se pacote nunca chegar, essa máquina não manda mais mensagem)
+                
+                -> Considerando a duplicação:
+
+                    - Como tratar no outro dispositivo se mensagem não tem id?
+                    - Como tratar o ack duplicado no meu dispositivo se mensagem não tem id?
+                    
+                    - OBS: não pode usar mensagem, porque o pacote pode corromper
+
+                - E se enviar outra mensagem do buffer? quando eu receber o ack, de qual mensagem era? não tem identificação !
+
+OBS: provavelmente a solução dessa merda aí é a opção de duplicação, mas n sei como tratar se não tem um ID
+
+Opção -> Usar payload para implementar ID, desse jeito não afeta o protocolo dos trabalhos do resto do pessoal, porém se receber pacote sem ID de outros trabalhos, não vai dar certo
+
+E se não tratar duplicação? pode ter confirmação de pacote errado !!

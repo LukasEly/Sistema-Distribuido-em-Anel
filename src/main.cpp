@@ -1,8 +1,8 @@
 #include <iostream>
-#include "../include/protocol.hpp"
+#include "include/Protocol.hpp"
 
 int main() {
     SigmaProtocol protocolo;
-    protocolo.setConfiguration();
+    
     return 0;
 }

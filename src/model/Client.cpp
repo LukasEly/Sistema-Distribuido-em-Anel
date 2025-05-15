@@ -1,18 +1,8 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-#include "../include/protocol.hpp"
+#include "src/include/Client.hpp"
 
-SigmaProtocol::SigmaProtocol() : ipAddress(""), port(0), tokenTimeout(0), hasToken(false) {
-}
+Client::Client(int numDevices) : numDevices(numDevices) {
 
-SigmaProtocol::~SigmaProtocol() {
-    // Destructor implementation
-}
-
-
-void SigmaProtocol::setConfiguration() {
-    std::ifstream file("src/settings");  // Nome do arquivo sem extensão
+    std::ifstream file("src/settings.conf");  // Nome do arquivo sem extensão
 
     if (!file) {
         std::cerr << "Erro ao abrir o arquivo." << std::endl;
@@ -23,10 +13,10 @@ void SigmaProtocol::setConfiguration() {
     if (std::getline(file, linha)) {
         size_t pos = linha.find(':');
         if (pos != std::string::npos) {
-            this->ipAddressToRight = linha.substr(0, pos);
+            this->ipAddressNext = linha.substr(0, pos);
             this->port = std::stoi(linha.substr(pos + 1));
 
-            std::cout << "IP: " << ipAddress << std::endl;
+            std::cout << "IP: " << ipAddressNext << std::endl;
             std::cout << "Porta: " << port << std::endl;
         } else {
             std::cerr << "Formato inválido na linha. Esperado: ip:porta" << std::endl;
@@ -52,4 +42,3 @@ void SigmaProtocol::setConfiguration() {
 
     file.close();
 }
-

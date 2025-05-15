@@ -3,12 +3,7 @@
 #include <iostream>
 
 class SigmaProtocol {
-private:
-    std::string ipAddressToRight;
-    int port;
-    std::string name;
-    int tokenTimeout;
-    bool hasToken;
+
 
 public:
     SigmaProtocol();
