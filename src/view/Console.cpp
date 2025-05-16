@@ -11,7 +11,7 @@ void Console::clearScreen() {
     printf("\033[2J\033[1;1H");
 }
 
-void menu() {
+void Console::menu() {
     printf("1. Enviar mensagem unicast\n");
     printf("2. Enviar mensagem broadcast\n");
     printf("3. Remover token\n");
