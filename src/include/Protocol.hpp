@@ -1,23 +1,33 @@
 #ifndef SIGMA_PROTOCOL_HPP
 #define SIGMA_PROTOCOL_HPP
+
 #include <iostream>
+#include "Utils.hpp"
+#include "Client.hpp"
+#include "TokenManager.hpp"
 
 class SigmaProtocol {
 
+    private: 
 
-public:
-    SigmaProtocol();
-    ~SigmaProtocol();
+        int numDevices;
+        Client* client;
 
-    void setConfiguration();
-    void sendData(const std::string& data);
-    std::string receiveData();
 
-    int getIpAddress() const;
-    int getPort() const;
-    int getTokenTimeout() const;
-    bool hasTokenFlag() const;
-    const std::string& getName() const;
+    public:
+        SigmaProtocol(int numDevices);
+        ~SigmaProtocol();
+
+        void sendData(const std::string& data);
+        std::string receiveData();
+
+        void start();
+
+        int getIpAddress() const;
+        int getPort() const;
+        int getTokenTimeout() const;
+        bool hasTokenFlag() const;
+        const std::string& getName() const;
 };
 
 #endif // SIGMA_PROTOCOL_HPP

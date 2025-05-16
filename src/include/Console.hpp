@@ -2,8 +2,14 @@
 #define CONSOLE_HPP
 
 #include <iostream>
+#include <mutex>
+#include <fstream>
 
 class Console {
+
+    private:
+
+        std::mutex consoleMutex;
 
     public:
 
@@ -19,9 +25,11 @@ class Console {
         bool removeToken();
         bool addToken();
 
-        void saveLog();
+        std::string readInput(); // definir se vai fazer algo personalizado aqui ou não
+
         void printLog();
 
+        // não sei se tem como implementar essa função assim de um jeito fácil
         void __exit(); // '__' porque exit já existe no C e geralmente '_' é método privado
 };
 

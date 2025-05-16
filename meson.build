@@ -25,11 +25,13 @@ incdir = include_directories('src/include')
 
 src = [
     'src/main.cpp',
+    'src/model/Utils.cpp',
     'src/Protocol.cpp',
     'src/model/Client.cpp',
     'src/model/Packet.cpp',
     'src/model/TokenManager.cpp',
-    'src/view/Console.cpp'
+    'src/view/Console.cpp',
+    'src/controller/LogStreamBuf.cpp',
 ]
 
 deps = [

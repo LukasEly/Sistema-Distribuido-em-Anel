@@ -1,44 +1,19 @@
 #include "src/include/Client.hpp"
 
-Client::Client(int numDevices) : numDevices(numDevices) {
+Client::Client(std::string ipAddressNext, int port, std::string name, int tokenTimeout, bool hasToken) 
+    : ipAddressNext(ipAddressNext), port(port), name(name), tokenTimeout(tokenTimeout), hasToken(hasToken) {
+    // Inicializa o cliente com os parâmetros fornecidos
+}
 
-    std::ifstream file("src/settings.conf");  // Nome do arquivo sem extensão
+Client::~Client() {
+    messageQueue.clear(); // não precisava, mas vai ser feito de qualquer forma, então tanto faz
+}
 
-    if (!file) {
-        std::cerr << "Erro ao abrir o arquivo." << std::endl;
-        return;
-    }
-
-    std::string linha;
-    if (std::getline(file, linha)) {
-        size_t pos = linha.find(':');
-        if (pos != std::string::npos) {
-            this->ipAddressNext = linha.substr(0, pos);
-            this->port = std::stoi(linha.substr(pos + 1));
-
-            std::cout << "IP: " << ipAddressNext << std::endl;
-            std::cout << "Porta: " << port << std::endl;
-        } else {
-            std::cerr << "Formato inválido na linha. Esperado: ip:porta" << std::endl;
-        }
-    } else {
-        std::cerr << "Arquivo vazio ou erro de leitura." << std::endl;
-    }
-
-    if (std::getline(file, linha)) {
-        this->name = linha;
-        std::cout << "Nome: " << name << std::endl;
-    }
-
-    if (std::getline(file, linha)) {
-        this->tokenTimeout = std::stoi(linha);
-        std::cout << "Token Timeout: " << tokenTimeout << std::endl;
-    }
-
-    if (std::getline(file, linha)) {
-        this->hasToken = (linha == "true");
-        std::cout << "Has Token: " << (hasToken ? "true" : "false") << std::endl;
-    }
-
-    file.close();
+std::string Client::toString() const {
+    std::string result = "IP: " + ipAddressNext + "\n";
+    result += "Porta: " + std::to_string(port) + "\n";
+    result += "Nome: " + name + "\n";
+    result += "Token Timeout: " + std::to_string(tokenTimeout) + "\n";
+    result += "Has Token: " + std::string(hasToken ? "true" : "false") + "\n";
+    return result;
 }
