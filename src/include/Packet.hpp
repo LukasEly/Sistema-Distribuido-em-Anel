@@ -33,6 +33,7 @@ class Packet {
         ~Packet();
         
         void serialize(std::vector<char>& buffer);
+        std::string toString();
 };
 // OBS: packet precisa ser serializada para enviar via socket, por possuir tipos que não são base, senão da merda do outro lado
 

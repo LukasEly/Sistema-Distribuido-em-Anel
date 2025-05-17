@@ -41,7 +41,7 @@ SigmaProtocol::SigmaProtocol(int numDevices) : numDevices(numDevices) {
 
     if (std::getline(file, linha)) {
         tokenTimeout = std::stoi(linha);
-        printf("Token Timeout: %d", tokenTimeout);
+        printf("Token Timeout: %d\n", tokenTimeout);
     }
 
     if (std::getline(file, linha)) {
@@ -56,6 +56,7 @@ SigmaProtocol::SigmaProtocol(int numDevices) : numDevices(numDevices) {
     } else {
         client = new Client(ipAddressNext, port, name, tokenTimeout, hasToken);
     }    
+    
 
     printf(" ---------------------------------- cliente ---------------------------------- \n");
     printf("%s\n" ,client->toString().c_str());
@@ -65,16 +66,24 @@ SigmaProtocol::SigmaProtocol(int numDevices) : numDevices(numDevices) {
 
 void SigmaProtocol::start() {
 
+    // APENAS PARA TESTE E DEBUG O CÓDIGO COMENTADO ABAIXO
+    /*
     Header* header = new Header("naoexiste", client->getName(), "ALL");
     Packet* packet = new Packet(9000, header, "ola");
-
+    
     std::vector<char> buffer;
-
+    
     packet->serialize(buffer);
-
+    
     printf("Data: %.*s\n", (int)buffer.size(), buffer.data());
-
+    
     delete packet;
+    */
+
+    while (true)
+    {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
 }
 
 SigmaProtocol::~SigmaProtocol() {

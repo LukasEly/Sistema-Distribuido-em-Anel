@@ -1,6 +1,9 @@
 #ifndef TOKENMANAGER_HPP
 #define TOKENMANAGER_HPP
 
+#include <thread>
+#include <chrono>
+#include <atomic>
 #include <mutex>
 #include "Client.hpp"
 
@@ -13,6 +16,9 @@ class TokenManager : public Client {
 
         int numDevices;
 
+        std::atomic<bool> stopThread;
+        std::thread tokenThread;
+
         // essas funções só ficam no construtor
         void _manageTokenTime();
         void _generateToken();
@@ -22,8 +28,9 @@ class TokenManager : public Client {
         TokenManager(std::string ipAddressNext, int port, std::string name, int tokenTimeout, bool hasToken, int numDevices);
         ~TokenManager() override;
 
+        void resetTokenTime();
         bool receivedToken(); // só sinaliza que recebeu o token para resetar o tempo, ou tratar o token
-        Packet createTokenPacket(); // cria o pacote do token
+        // Packet createTokenPacket(); // cria o pacote do token
 };
 
 #endif

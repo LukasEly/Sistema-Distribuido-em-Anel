@@ -75,6 +75,15 @@ void Packet::serialize(std::vector<char>& buffer) {
     offset += payload.size();
 }
 
+std::string Packet::toString() {
+    std::string result = std::to_string(type);
+    if(header != nullptr) {
+        result += ':' + header->toString() + ';';
+    }
+    result += payload;
+    return result;
+}
+
 Packet::~Packet() {
     if(header != nullptr) {
         delete header;

@@ -28,6 +28,7 @@ int main(int argc, char *argv[]) {
     { // bloco do código
         SigmaProtocol protocolo(numDevices);
         protocolo.start();
+
     } // destrutor é chamado aqui
 
     return 0;

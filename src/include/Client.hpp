@@ -9,7 +9,7 @@
 
 class Client {
 
-    private:
+    protected:
 
         std::string ipAddressNext;
         int port;
@@ -18,6 +18,8 @@ class Client {
         bool hasToken;
 
         std::list<Packet> messageQueue; // melhor usar packet ou string?
+
+        void _sendPacket(Packet* packet); // envia o pacote
 
     public:
     

@@ -18,6 +18,14 @@ std::string Client::getName() const {
     return name;
 }
 
+void Client::_sendPacket(Packet* packet) {
+    // Implementar o envio do pacote
+    // Aqui você pode usar sockets ou qualquer outro método de comunicação
+    std::cout << "Enviando pacote: " << packet->toString() << std::endl;
+}
+
+
+
 Client::~Client() {
     messageQueue.clear(); // não precisava, mas vai ser feito de qualquer forma, então tanto faz
 }
