@@ -20,9 +20,11 @@ class Client {
         std::list<Packet> messageQueue; // melhor usar packet ou string?
 
     public:
-
+    
         Client(std::string ipAddressNext, int port, std::string name, int tokenTimeout, bool hasToken);
         virtual ~Client(); // precisa ser virtual pra poder identificar o tipo do objeto, e também pra "ativar" o polimorfismo
+
+        std::string getName() const;
 
         bool enqueueMessage(std::string message); // já passa como packet ou como string?
         std::string dequeueMessage();

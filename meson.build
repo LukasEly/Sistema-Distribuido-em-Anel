@@ -34,8 +34,10 @@ src = [
     'src/controller/LogStreamBuf.cpp',
 ]
 
-deps = [
+zlib_dep = dependency('zlib', required: true)
 
+deps = [
+    zlib_dep
 ]
 
 executable('tf', src, dependencies: deps, include_directories: incdir)

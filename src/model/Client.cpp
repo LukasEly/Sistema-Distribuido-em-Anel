@@ -5,10 +5,6 @@ Client::Client(std::string ipAddressNext, int port, std::string name, int tokenT
     // Inicializa o cliente com os parâmetros fornecidos
 }
 
-Client::~Client() {
-    messageQueue.clear(); // não precisava, mas vai ser feito de qualquer forma, então tanto faz
-}
-
 std::string Client::toString() const {
     std::string result = "IP: " + ipAddressNext + "\n";
     result += "Porta: " + std::to_string(port) + "\n";
@@ -16,4 +12,12 @@ std::string Client::toString() const {
     result += "Token Timeout: " + std::to_string(tokenTimeout) + "\n";
     result += "Has Token: " + std::string(hasToken ? "true" : "false") + "\n";
     return result;
+}
+
+std::string Client::getName() const {
+    return name;
+}
+
+Client::~Client() {
+    messageQueue.clear(); // não precisava, mas vai ser feito de qualquer forma, então tanto faz
 }
