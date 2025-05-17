@@ -13,8 +13,6 @@ int main(int argc, char *argv[]) {
 
     // IMPORTANTE: Se não quiser que o print saia no arquivo log.txt, usar printf()
 
-    return 0;
-
     if (argc != 2) {
         fprintf(stderr, "Uso: %s <numDevices>\n", argv[0]);
         return 1; // erro
@@ -29,6 +27,7 @@ int main(int argc, char *argv[]) {
 
     { // bloco do código
         SigmaProtocol protocolo(numDevices);
+        protocolo.start();
     } // destrutor é chamado aqui
 
     return 0;

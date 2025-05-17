@@ -25,8 +25,8 @@ SigmaProtocol::SigmaProtocol(int numDevices) : numDevices(numDevices) {
             ipAddressNext = linha.substr(0, pos);
             port = std::stoi(linha.substr(pos + 1));
 
-            std::cout << "IP: " << ipAddressNext << std::endl;
-            std::cout << "Porta: " << port << std::endl;
+            printf("IP: %s\n", ipAddressNext.c_str());
+            printf("Porta: %d\n", port);
         } else {
             std::cerr << "Formato inválido na linha. Esperado: ip:porta" << std::endl;
         }
@@ -36,17 +36,17 @@ SigmaProtocol::SigmaProtocol(int numDevices) : numDevices(numDevices) {
 
     if (std::getline(file, linha)) {
         name = linha;
-        std::cout << "Nome: " << name << std::endl;
+        printf("Nome: %s\n", name.c_str());
     }
 
     if (std::getline(file, linha)) {
         tokenTimeout = std::stoi(linha);
-        std::cout << "Token Timeout: " << tokenTimeout << std::endl;
+        printf("Token Timeout: %d", tokenTimeout);
     }
 
     if (std::getline(file, linha)) {
         hasToken = (linha == "true");
-        std::cout << "Has Token: " << (hasToken ? "true" : "false") << std::endl;
+        printf("Has Token: %s\n", (hasToken ? "true" : "false"));
     }
 
     file.close();
@@ -57,9 +57,24 @@ SigmaProtocol::SigmaProtocol(int numDevices) : numDevices(numDevices) {
         client = new Client(ipAddressNext, port, name, tokenTimeout, hasToken);
     }    
 
-    std::cout << " ---------------------------------- cliente ---------------------------------- " << std::endl;
-    std::cout << client->toString() << std::endl;
-    std::cout << " ------------------------------------------------------------------------------ " << std::endl;
+    printf(" ---------------------------------- cliente ---------------------------------- \n");
+    printf("%s\n" ,client->toString().c_str());
+    printf(" ----------------------------------------------------------------------------- \n");
+}
+
+
+void SigmaProtocol::start() {
+
+    Header* header = new Header("naoexiste", client->getName(), "ALL");
+    Packet* packet = new Packet(9000, header, "ola");
+
+    std::vector<char> buffer;
+
+    packet->serialize(buffer);
+
+    printf("Data: %.*s\n", (int)buffer.size(), buffer.data());
+
+    delete packet;
 }
 
 SigmaProtocol::~SigmaProtocol() {
