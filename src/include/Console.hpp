@@ -4,6 +4,7 @@
 #include <iostream>
 #include <mutex>
 #include <fstream>
+#include <vector>
 
 class Console {
 
@@ -25,7 +26,7 @@ class Console {
         bool removeToken();
         bool addToken();
 
-        std::string readInput(); // definir se vai fazer algo personalizado aqui ou não
+        void readInput(std::vector<std::string>& input); // definir se vai fazer algo personalizado aqui ou não
 
         void printLog();
 

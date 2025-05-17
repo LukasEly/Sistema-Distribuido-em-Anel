@@ -65,24 +65,69 @@ SigmaProtocol::SigmaProtocol(int numDevices) : numDevices(numDevices) {
 
 
 void SigmaProtocol::start() {
-
-    // APENAS PARA TESTE E DEBUG O CÓDIGO COMENTADO ABAIXO
-    /*
-    Header* header = new Header("naoexiste", client->getName(), "ALL");
-    Packet* packet = new Packet(9000, header, "ola");
     
-    std::vector<char> buffer;
-    
-    packet->serialize(buffer);
-    
-    printf("Data: %.*s\n", (int)buffer.size(), buffer.data());
-    
-    delete packet;
-    */
+    std::vector<std::string> input;
 
     while (true)
     {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        console.clearScreen();
+        console.menu();
+
+        console.readInput(input);
+        
+        if (input.size() == 0) {
+            continue;
+        }
+
+        if (!isInteger(input[0])) {
+            printf("Erro: <tipo> deve ser um número inteiro.\n");
+            continue;
+        }
+
+        int tipo = std::stoi(input[0]);
+
+        switch (tipo)
+        {
+        case 1:
+            if(input.size() < 3) {
+                printf("Erro: <destino> e <mensagem> são obrigatórios.\n");
+                continue;
+            }
+
+            break;
+        case 2:
+            if(input.size() < 2) {
+                printf("Erro: <mensagem> é obrigatória.\n");
+                continue;
+            }
+
+            break;
+        case 3:
+            
+            break;
+        case 4:
+        
+            break;
+        case 5: 
+            if(input.size() < 2) {
+                printf("Erro: <porcentagem de erro> é obrigatória.\n");
+                continue;
+            }
+        
+            break;
+        case 6:
+            console.printLog();            
+
+            break;
+        case 7:
+            // ainda não funciona, tem que limpar todas threads e dados antes !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            console.__exit();
+
+            break;
+        default:
+            printf("Erro: <tipo> deve ser um número inteiro entre 1 e 7.\n");
+            break;
+        }
     }
 }
 

@@ -5,6 +5,7 @@
 #include "Utils.hpp"
 #include "Client.hpp"
 #include "TokenManager.hpp"
+#include "Console.hpp"
 
 class SigmaProtocol {
 
@@ -12,7 +13,7 @@ class SigmaProtocol {
 
         int numDevices;
         Client* client;
-
+        Console console;
 
     public:
         SigmaProtocol(int numDevices);

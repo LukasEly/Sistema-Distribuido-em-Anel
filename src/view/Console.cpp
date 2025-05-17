@@ -22,7 +22,25 @@ void Console::menu() {
     printf("Escolha uma opção: ");
 }
 
+void Console::printLog() {
+    std::ifstream logFile("log.txt");
+    if (!logFile.is_open()) {
+        std::cerr << "Erro ao abrir o arquivo de log." << std::endl;
+        return;
+    }
+    
+    std::string line;
+    while (std::getline(logFile, line)) {
+        std::cout << line << std::endl;
+    }
+    
+    logFile.close();
+}
 
+void Console::__exit() {
+    std::cout << "Saindo..." << std::endl;
+    exit(0);
+}
 
 
 
