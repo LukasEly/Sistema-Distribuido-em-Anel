@@ -44,7 +44,7 @@ SigmaProtocol::SigmaProtocol(int numDevices) : numDevices(numDevices) {
 <<<<<<< HEAD
         printf("Token Timeout: %d\n", tokenTimeout);
 =======
-        printf("Token Timeout: %d", tokenTimeout);
+        printf("Token Timeout: %d\n", tokenTimeout);
 >>>>>>> origin/kaizer-branch
     }
 
