@@ -41,7 +41,11 @@ SigmaProtocol::SigmaProtocol(int numDevices) : numDevices(numDevices) {
 
     if (std::getline(file, linha)) {
         tokenTimeout = std::stoi(linha);
+<<<<<<< HEAD
         printf("Token Timeout: %d\n", tokenTimeout);
+=======
+        printf("Token Timeout: %d", tokenTimeout);
+>>>>>>> origin/kaizer-branch
     }
 
     if (std::getline(file, linha)) {
