@@ -22,6 +22,13 @@ void Console::menu() {
     printf("Escolha uma opção: ");
 }
 
+void Console::readInput(std::vector<std::string>& input) {
+
+    // por enquanto não ta funcionando, precisa implementar
+    std::string line;
+    std::cin >> line;
+}
+
 void Console::printLog() {
     std::ifstream logFile("log.txt");
     if (!logFile.is_open()) {

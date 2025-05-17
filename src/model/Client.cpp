@@ -2,7 +2,31 @@
 
 Client::Client(std::string ipAddressNext, int port, std::string name, int tokenTimeout, bool hasToken) 
     : ipAddressNext(ipAddressNext), port(port), name(name), tokenTimeout(tokenTimeout), hasToken(hasToken) {
-    // Inicializa o cliente com os parâmetros fornecidos
+
+    clientSocket = socket(AF_INET, SOCK_DGRAM, 0);
+    if (clientSocket < 0) {
+        std::cerr << "Erro ao criar socket!" << std::endl;
+        throw std::runtime_error("Erro ao criar socket");
+    }
+
+    // Configurando o endereço do servidor
+    struct sockaddr_in end;
+    std::memset(&end, 0, sizeof(end));
+    end.sin_family = AF_INET;
+    end.sin_addr.s_addr = INADDR_ANY;  // Aceita qualquer endereço
+    end.sin_port = htons(LOCALPORT);  // Porta de escuta
+
+    // permitindo reusar a socket pra ser menos estressante na hora de testar
+    int opt = 1;
+    if (setsockopt(clientSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+        perror("setsockopt");
+        exit(EXIT_FAILURE);
+    } 
+
+    if (bind(this->clientSocket, (struct sockaddr*)&end, sizeof(end)) < 0) {
+        std::cerr << "Erro ao fazer bind!" << std::endl;
+        throw std::runtime_error("Erro ao fazer bind");
+    }   
 }
 
 std::string Client::toString() const {

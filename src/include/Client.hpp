@@ -4,8 +4,12 @@
 #include <iostream>
 #include <fstream>
 #include <list>
+#include <arpa/inet.h>
+#include <sys/select.h>
 
 #include "Packet.hpp"
+
+#define LOCALPORT 6000
 
 class Client {
 
@@ -16,6 +20,8 @@ class Client {
         std::string name;
         int tokenTimeout;
         bool hasToken;
+
+        int clientSocket;
 
         std::list<Packet> messageQueue; // melhor usar packet ou string?
 
