@@ -41,7 +41,7 @@ SigmaProtocol::SigmaProtocol(int numDevices) : numDevices(numDevices) {
 
     if (std::getline(file, linha)) {
         tokenTimeout = std::stoi(linha);
-        printf("Token Timeout: %d", tokenTimeout);
+        printf("Token Timeout: %d\n", tokenTimeout);
     }
 
     if (std::getline(file, linha)) {
