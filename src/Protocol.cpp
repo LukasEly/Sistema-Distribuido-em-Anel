@@ -72,7 +72,6 @@ void SigmaProtocol::start() {
     {
         console.clearScreen();
         console.menu();
-
         console.readInput(input);
         
         if (input.size() == 0) {
@@ -116,7 +115,9 @@ void SigmaProtocol::start() {
         
             break;
         case 6:
-            console.printLog();            
+            console.clearScreen();
+            console.printLog();  
+            std::cin.get();          
 
             break;
         case 7:

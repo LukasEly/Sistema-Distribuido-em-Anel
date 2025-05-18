@@ -6,6 +6,8 @@
 #include <fstream>
 #include <vector>
 
+#include "Utils.hpp"
+
 class Console {
 
     private:
