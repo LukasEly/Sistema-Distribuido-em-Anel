@@ -79,7 +79,7 @@ void SigmaProtocol::start() {
         }
 
         if (!isInteger(input[0])) {
-            printf("Erro: <tipo> deve ser um número inteiro.\n");
+            std::cout << "Erro: <tipo> deve ser um número inteiro.\n";
             continue;
         }
 
@@ -89,34 +89,51 @@ void SigmaProtocol::start() {
         {
         case 1:
             if(input.size() < 3) {
-                printf("Erro: <destino> e <mensagem> são obrigatórios.\n");
+                std::cout << "Erro: <destino> e <mensagem> são obrigatórios.\n";
                 continue;
             }
+          
+            if(!client->enqueueMessage(input[1], input[2])) {
+                std::cout << "Erro: número máximo de mensagens atingido.\n";
+                continue;
+            };
 
             break;
         case 2:
             if(input.size() < 2) {
-                printf("Erro: <mensagem> é obrigatória.\n");
+                std::cout << "Erro: <mensagem> é obrigatória.\n";
                 continue;
             }
 
+            std::cout << "mensagem que eu mandei pra todo mundo\n";
+            std::cout << input[1] << std::endl;
+
+            if(!client->enqueueMessage("TODOS", input[1])) {
+                std::cout << "Erro: número máximo de mensagens atingido.\n";
+                continue;
+            };
+
             break;
         case 3:
-            
+            client->removeToken();
+
             break;
         case 4:
-        
+            client->addToken();    
+
             break;
         case 5: 
             if(input.size() < 2) {
-                printf("Erro: <porcentagem de erro> é obrigatória.\n");
+                std::cout << "Erro: <porcentagem de erro> é obrigatória.\n";
                 continue;
             }
         
             break;
         case 6:
             console.clearScreen();
-            console.printLog();  
+            console.printLog();
+            
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
             std::cin.get();          
 
             break;

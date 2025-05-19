@@ -10,6 +10,7 @@
 #include "Packet.hpp"
 
 #define LOCALPORT 6000
+#define MAX_DATA 10
 
 class Client {
 
@@ -22,8 +23,13 @@ class Client {
         bool hasToken;
 
         int clientSocket;
+        struct sockaddr_in dst;
 
-        std::list<Packet> messageQueue; // melhor usar packet ou string?
+        std::list<Packet*> messageQueue; // melhor usar packet ou string?
+
+        // variáveis de falhas
+        bool _removeToken;
+        int _packetError; 
 
         void _sendPacket(Packet* packet); // envia o pacote
 
@@ -34,8 +40,13 @@ class Client {
 
         std::string getName() const;
 
-        bool enqueueMessage(std::string message); // já passa como packet ou como string?
+        bool enqueueMessage(std::string destination, std::string message); // já passa como packet ou como string?
         std::string dequeueMessage();
+
+        // funções de falhas
+        void removeToken();
+        void addToken();
+        void setPacketError(int percent);
 
         void handleMessage(const Packet* packet); // passar como packet é melhor? ou passar como string?
         void handleToken(const Packet* packet);

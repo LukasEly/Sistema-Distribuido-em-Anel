@@ -1,7 +1,7 @@
 #include "src/include/Console.hpp"
 
 Console::Console() {
-    // Inicializa o console
+    this->clearLog();
 }
 Console::~Console() {
 
@@ -51,7 +51,7 @@ void Console::readInput(std::vector<std::string>& input) {
     
     case 2:
     case 5:
-        std::cin >> arg1;
+        std::getline(std::cin >> std::ws, arg1); 
         input.push_back(arg1);
         break;
 
@@ -60,15 +60,13 @@ void Console::readInput(std::vector<std::string>& input) {
         std::cin >> arg1;
         input.push_back(arg1);
         
-        std::cin >> arg2;
+        std::getline(std::cin >> std::ws, arg2); 
         input.push_back(arg2);
         break;
 
     default:
         break;
     }
-
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
 void Console::printLog() {
@@ -86,19 +84,17 @@ void Console::printLog() {
     logFile.close();
 }
 
+void Console::clearLog() {
+    std::ofstream logFile("log.txt", std::ios::trunc);
+    if (!logFile.is_open()) {
+        std::cerr << "Erro ao abrir o arquivo de log." << std::endl;
+        return;
+    }
+    
+    logFile.close();
+}
+
 void Console::__exit() {
     std::cout << "Saindo..." << std::endl;
     exit(0);
 }
-
-
-
-
-
-
-
-
-
-
-
-
