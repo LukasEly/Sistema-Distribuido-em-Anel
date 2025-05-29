@@ -59,6 +59,73 @@ void Client::_sendPacket(Packet* packet) {
     sendto(clientSocket, buffer.data(), buffer.size(), 0, (struct sockaddr*)&dst, sizeof(dst));
 }
 
+//boooooooooooooooosta
+
+
+void Client::receive() {
+    receiveThread = std::thread(&Client::receive, this);
+}
+
+void Client::_select() {
+    fd_set readfds;
+    struct timeval tv;
+    
+    while (!_stopReceiveThread) {
+        FD_ZERO(&readfds);
+        FD_SET(clientSocket, &readfds);
+
+        tv.tv_sec = 1;
+        tv.tv_usec = 0;
+
+        int activity = select(clientSocket + 1, &readfds, NULL, NULL, &tv);
+
+        if (activity < 0) {
+            std::cerr << "Erro no select" << std::endl;
+            continue;
+        }
+
+        if (activity == 0) {
+            continue;
+        }
+
+        if (FD_ISSET(clientSocket, &readfds)) {
+            char buffer[1024];
+            struct sockaddr_in srcAddr;
+            socklen_t addrLen = sizeof(srcAddr);
+
+            ssize_t bytesReceived = recvfrom(clientSocket, buffer, sizeof(buffer), 0, (struct sockaddr*)&srcAddr, &addrLen);
+
+            if (bytesReceived < 0) {
+                std::cerr << "Erro ao receber dados" << std::endl;
+                continue;
+            }
+
+            // Aqui você faz parsing do pacote
+            /*Packet packet;
+            if (packet.deserialize(buffer, bytesReceived)) {
+                std::cout << "Pacote recebido: " << packet.toString() << std::endl;
+
+                // Processa o pacote recebido
+                _handlePacket(packet);
+            } else {
+                std::cerr << "Falha na desserialização do pacote" << std::endl;
+            }*/
+        }
+    }
+}
+
+void Client::stopReceiveThread() {
+    _stopReceiveThread = true;
+    if (receiveThread.joinable()) {
+        receiveThread.join();
+    }
+}
+
+
+// booooooooooooooooosta
+
+
+
 bool Client::enqueueMessage(std::string destination, std::string message) {
     if (messageQueue.size() >= MAX_DATA) { // número máximo de mensagens
         return false;

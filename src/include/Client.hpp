@@ -6,6 +6,7 @@
 #include <list>
 #include <arpa/inet.h>
 #include <sys/select.h>
+#include <thread>
 
 #include "Packet.hpp"
 
@@ -33,6 +34,9 @@ class Client {
 
         void _sendPacket(Packet* packet); // envia o pacote
 
+        std::thread receiveThread;
+        bool _stopReceiveThread = false;
+
     public:
     
         Client(std::string ipAddressNext, int port, std::string name, int tokenTimeout, bool hasToken);
@@ -42,6 +46,10 @@ class Client {
 
         bool enqueueMessage(std::string destination, std::string message); // já passa como packet ou como string?
         std::string dequeueMessage();
+
+        void receive();
+        void _select();
+        void stopReceiveThread();
 
         // funções de falhas
         void removeToken();
