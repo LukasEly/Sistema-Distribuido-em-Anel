@@ -33,6 +33,7 @@ class Client {
 
         void _sendPacket(Packet* packet); // envia o pacote
 
+
     public:
     
         Client(std::string ipAddressNext, int port, std::string name, int tokenTimeout, bool hasToken);

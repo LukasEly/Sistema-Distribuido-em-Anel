@@ -63,13 +63,22 @@ SigmaProtocol::SigmaProtocol(int numDevices) : numDevices(numDevices) {
     printf(" ----------------------------------------------------------------------------- \n");
 }
 
+void SigmaProtocol::_listenForPackets() {
+    while (running) {
+        client->checkReceivedMessages();  // ou outro método para tratar pacotes
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));  // Evita 100% de CPU
+    }
+}
 
 void SigmaProtocol::start() {
     
     std::vector<std::string> input;
 
+    running = true;
+    listenerThread = std::thread(&SigmaProtocol::_listenForPackets, this);
     while (true)
     {
+
         console.clearScreen();
         console.menu();
         console.readInput(input);
@@ -150,7 +159,11 @@ void SigmaProtocol::start() {
 }
 
 SigmaProtocol::~SigmaProtocol() {
-    delete client; 
+    running = false;
+    if (listenerThread.joinable()) {
+        listenerThread.join();
+    }
+    delete client;
 }
 
 

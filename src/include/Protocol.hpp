@@ -15,12 +15,14 @@ class SigmaProtocol {
         Client* client;
         Console console;
 
+        std::thread listenerThread;
+        std::atomic<bool> running;
+
+        void SigmaProtocol::_listenForPackets();
+
     public:
         SigmaProtocol(int numDevices);
         ~SigmaProtocol();
-
-        void sendData(const std::string& data);
-        std::string receiveData();
 
         void start();
 
