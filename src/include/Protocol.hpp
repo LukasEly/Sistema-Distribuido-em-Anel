@@ -15,10 +15,11 @@ class SigmaProtocol {
         Client* client;
         Console console;
 
+        std::mutex packetMutex;
         std::thread listenerThread;
-        std::atomic<bool> running;
+        std::atomic<bool> stopThreadP;
 
-        void SigmaProtocol::_listenForPackets();
+        void monitorSpecialPackets();
 
     public:
         SigmaProtocol(int numDevices);

@@ -1,6 +1,11 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <thread>
+#include <atomic>
+#include <cstring>
+#include <arpa/inet.h>
+#include <unistd.h>
 #include "include/Protocol.hpp"
 
 SigmaProtocol::SigmaProtocol(int numDevices) : numDevices(numDevices) {
@@ -63,22 +68,16 @@ SigmaProtocol::SigmaProtocol(int numDevices) : numDevices(numDevices) {
     printf(" ----------------------------------------------------------------------------- \n");
 }
 
-void SigmaProtocol::_listenForPackets() {
-    while (running) {
-        client->checkReceivedMessages();  // ou outro método para tratar pacotes
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));  // Evita 100% de CPU
-    }
-}
 
 void SigmaProtocol::start() {
-    
     std::vector<std::string> input;
 
-    running = true;
-    listenerThread = std::thread(&SigmaProtocol::_listenForPackets, this);
-    while (true)
-    {
+    // Inicia a thread de monitoramento de pacotes especiais
+    stopThreadP = false;
+    listenerThread = std::thread([this]() { this->monitorSpecialPackets(); });
 
+    while (!stopThreadP)
+    {
         console.clearScreen();
         console.menu();
         console.readInput(input);
@@ -147,9 +146,9 @@ void SigmaProtocol::start() {
 
             break;
         case 7:
-            // ainda não funciona, tem que limpar todas threads e dados antes !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            // Finaliza o loop e encerra o programa
+            stopThreadP = true;
             console.__exit();
-
             break;
         default:
             printf("Erro: <tipo> deve ser um número inteiro entre 1 e 7.\n");
@@ -158,12 +157,69 @@ void SigmaProtocol::start() {
     }
 }
 
+void SigmaProtocol::monitorSpecialPackets() {
+    char buffer[1024];
+    struct sockaddr_in serverAddr;
+    socklen_t addrLen = sizeof(serverAddr);
+
+    int sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock < 0) {
+        perror("Socket error");
+        return;
+    }
+    std::cout << "[DEBUG] Socket criado\n";
+
+    memset(&serverAddr, 0, sizeof(serverAddr));
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_addr.s_addr = INADDR_ANY;
+    serverAddr.sin_port = htons(12345);
+
+    if (bind(sock, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
+        perror("Bind failed");
+        close(sock);
+        return;
+    }
+    std::cout << "[DEBUG] Bind realizado na porta 12345\n";
+
+    while (!stopThreadP) {
+        std::cout << "[DEBUG] Esperando pacote...\n";
+        int bytesReceived = recvfrom(sock, buffer, sizeof(buffer) - 1, 0,
+                                    (struct sockaddr*)&serverAddr, &addrLen);
+        if (bytesReceived > 0) {
+            buffer[bytesReceived] = '\0';
+            std::cout << "[DEBUG] Pacote recebido: " << buffer << std::endl;
+
+            try {
+                Packet* packet = Packet::deserialize(std::vector<char>(buffer, buffer + bytesReceived));
+                if (packet) {
+                    std::cout << "[DEBUG] Pacote desserializado com sucesso: " << packet->toString() << std::endl;
+                    // Trate o pacote normalmente aqui
+                    // Exemplo:
+                    // if (packet->getType() == 9000) { ... }
+                    delete packet; // Libere se necessário
+                } else {
+                    std::cout << "[ERRO] Falha ao desserializar o pacote.\n";
+                }
+            } catch (const std::exception& e) {
+                std::cout << "[ERRO] Exceção ao desserializar pacote: " << e.what() << std::endl;
+            } catch (...) {
+                std::cout << "[ERRO] Exceção desconhecida ao desserializar pacote.\n";
+            }
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
+    close(sock);
+}
+
 SigmaProtocol::~SigmaProtocol() {
-    running = false;
+    stopThreadP = true;
     if (listenerThread.joinable()) {
         listenerThread.join();
     }
-    delete client;
+    if (client != nullptr) {
+        delete client;
+        client = nullptr;
+    }
 }
 
 

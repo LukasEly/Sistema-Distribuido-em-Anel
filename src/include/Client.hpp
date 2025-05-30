@@ -44,12 +44,16 @@ class Client {
         bool enqueueMessage(std::string destination, std::string message); // já passa como packet ou como string?
         std::string dequeueMessage();
 
+        virtual void resetTokenTime() {} // No Client
+
         // funções de falhas
         void removeToken();
         void addToken();
         void setPacketError(int percent);
 
-        void handleMessage(const Packet* packet); // passar como packet é melhor? ou passar como string?
+        bool hasTokenFlag() const { return hasToken; }
+
+        void handleMessage();
         void handleToken(const Packet* packet);
         void handleAck(const Packet* packet);
         void handleNack(const Packet* packet);

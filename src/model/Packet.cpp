@@ -75,6 +75,74 @@ void Packet::serialize(std::vector<char>& buffer) {
     offset += payload.size();
 }
 
+Packet* Packet::deserialize(const std::vector<char>& buffer) {
+    size_t offset = 0;
+    int type = 0;
+
+    // Lê o tipo do pacote
+    std::string type_str;
+    while (offset < buffer.size() && buffer[offset] != ':') {
+        type_str += buffer[offset++];
+    }
+    offset++; // Pula o ':'
+
+
+    try {
+        type = std::stoi(type_str); 
+    } catch (const std::exception& e) {
+        return nullptr;
+    }
+
+
+    if(type != 9000 && type != 7777) {
+        return nullptr;
+    }
+    
+    std::cout << "Deserializando pacote do tipo: " << type << std::endl;
+    // Se não for um pacote de token, lê o header
+    std::cout << "Tamanho do buffer: " << buffer.size() << std::endl;
+    std::cout << "Offset inicial: " << offset << std::endl;
+
+    if(offset > buffer.size() && type == 9000) {
+        return new Packet(type, nullptr, ""); 
+    } else if(offset <= buffer.size() && type == 9000) {
+        return nullptr;
+    }
+
+    Header* header = nullptr;
+
+    // Lê o header
+    std::string s;
+    while (offset < buffer.size() && buffer[offset] != '\0') {
+        s += buffer[offset++];
+    }
+    offset++; // Pula o ';'
+
+    // Divide o header em partes
+    size_t pos1 = s.find(';');
+    size_t pos2 = s.find(';', pos1 + 1);
+    size_t pos3 = s.find(';', pos2 + 1);
+    size_t pos4 = s.find(';', pos3 + 1);
+
+    std::cout << "Posições encontradas: " << pos1 << ", " << pos2 << ", " << pos3 << ", " << pos4 << std::endl;
+    std::cout << "Posições encontradas: " << std::string::npos << std::endl;
+
+    if(pos1 == std::string::npos || pos2 == std::string::npos || pos3 == std::string::npos || pos4 == std::string::npos) {
+        throw std::invalid_argument("Invalid header format");
+    }
+
+    std::string estado = s.substr(0, pos1);
+    std::string nomeOrigem = s.substr(pos1 + 1, pos2 - pos1 - 1);
+    std::string nomeDestino = s.substr(pos2 + 1, pos3 - pos2 - 1);
+    std::string crc32 = s.substr(pos3 + 1, pos4 - pos3 - 1);
+
+    header = new Header(estado, nomeOrigem, nomeDestino);
+    
+    std::string payload = s.substr(pos4 + 1);
+
+    return new Packet(type, header, payload);
+}
+
 std::string Packet::toString() {
     std::string result = std::to_string(type);
     if(header != nullptr) {

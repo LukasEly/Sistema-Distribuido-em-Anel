@@ -102,6 +102,10 @@ void Client::setPacketError(int percent) {
     this->_packetError = percent;
 }
 
+void handleMessage(std::string buffer) {
+
+} 
+
 Client::~Client() {
     messageQueue.clear(); // não precisava, mas vai ser feito de qualquer forma, então tanto faz
 }

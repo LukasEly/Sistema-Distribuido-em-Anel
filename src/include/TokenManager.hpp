@@ -12,7 +12,7 @@ class TokenManager : public Client {
     private:
 
         std::mutex tokenMutex; // como tem threads, melhor limitar o acesso da escrita do token
-        int tokenTime;
+        float tokenTime;
 
         int numDevices;
 
@@ -28,7 +28,7 @@ class TokenManager : public Client {
         TokenManager(std::string ipAddressNext, int port, std::string name, int tokenTimeout, bool hasToken, int numDevices);
         ~TokenManager() override;
 
-        void resetTokenTime();
+        void resetTokenTime() override;
         bool receivedToken(); // só sinaliza que recebeu o token para resetar o tempo, ou tratar o token
         // Packet createTokenPacket(); // cria o pacote do token
 };

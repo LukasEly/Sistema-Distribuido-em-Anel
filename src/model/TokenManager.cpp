@@ -20,25 +20,28 @@ void TokenManager::_generateToken() {
 void TokenManager::_manageTokenTime() {
 
     while (!stopThread)
-    {z
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         {
             std::lock_guard<std::mutex> lock(tokenMutex); 
-            ++tokenTime;
+            tokenTime += 0.01;
         }
     
         if(tokenTime >= this->numDevices*this->tokenTimeout) { // se exceder o tempo que cada device fica com o token
             std::cout << "Reenviando token" << std::endl;
             _generateToken();
-            resetTokenTime();           
+            resetTokenTime();
         }
     }
-    
 }
 
 void TokenManager::resetTokenTime() {
     std::lock_guard<std::mutex> lock(tokenMutex); 
+    if(tokenTime < this->numDevices*this->tokenTimeout-0.5) {
+        // this->handleRemoveToken();
+        std::cout << "Token Chegou antes do Tempo \n" << std::endl;
+    }
     tokenTime = 0; 
 }
 
