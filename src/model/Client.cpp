@@ -87,7 +87,7 @@ void Client::removeToken() {
     _removeToken = true; // tem que tratar o token no recebimento
 }
 
-void Client::addToken() {
+void Client::sendToken() {
 
     Packet* packet = new Packet(9000, nullptr, "");
     this->_sendPacket(packet);
@@ -120,7 +120,7 @@ void Client::handleMessage(const Packet* packet) {
         }
     } else if((packet->getOrigem() == this->name) ) {
         std::cout << Debug::erro("Mensagem não enviada, destino inválido: ") << packet->getDestino() << std::endl;
-        addToken();
+        sendToken();
         return;
     } else {
         std::cout << Debug::vermelho("Mensagem não é para mim, ignorando.") << std::endl;
@@ -134,20 +134,25 @@ void Client::handleToken(const Packet* packet) {
     resetTokenTime();
     if (messageQueue.empty()) {
         std::cout << Debug::vermelho("Pacote não possui mensagens.") << std::endl;
-        addToken();
+        sendToken();
     } else {
         std::cout << Debug::amarelo("Pacote possui mensagens.") << std::endl;
         Packet* msgPacket = messageQueue.front();
         _sendPacket(msgPacket);
-        messageQueue.pop_front();
         std::cout << Debug::verde("Pacote enviado: ") << msgPacket->toString() << std::endl;
         delete msgPacket; // libera a memória do pacote enviado
     }
 } 
 
 void Client::handleNack(const Packet* packet) {
+    Header* header = new Header("naoexiste", this->name, packet->getOrigem());
+    Packet* msgPacket = new Packet(7777, header, packet->getPayload());
+    _sendPacket(msgPacket);
+    delete msgPacket;
 }
 void Client::handleAck(const Packet* packet) {
+    messageQueue.pop_front();
+    sendToken();
 }
 void Client::handleNotExist(const Packet* packet) {
     

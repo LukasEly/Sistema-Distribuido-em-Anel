@@ -50,7 +50,7 @@ class Client {
         
         // funções de falhas
         void removeToken();
-        void addToken();
+        void sendToken();
         void setPacketError(int percent);
 
         bool hasTokenFlag() const { return hasToken; }
