@@ -86,7 +86,6 @@ Packet* Packet::deserialize(const std::vector<char>& buffer) {
     }
     offset++; // Pula o ':'
 
-
     try {
         type = std::stoi(type_str); 
     } catch (const std::exception& e) {
@@ -97,11 +96,6 @@ Packet* Packet::deserialize(const std::vector<char>& buffer) {
     if(type != 9000 && type != 7777) {
         return nullptr;
     }
-    
-    std::cout << "Deserializando pacote do tipo: " << type << std::endl;
-    // Se não for um pacote de token, lê o header
-    std::cout << "Tamanho do buffer: " << buffer.size() << std::endl;
-    std::cout << "Offset inicial: " << offset << std::endl;
 
     if(offset > buffer.size() && type == 9000) {
         return new Packet(type, nullptr, ""); 
@@ -123,9 +117,6 @@ Packet* Packet::deserialize(const std::vector<char>& buffer) {
     size_t pos2 = s.find(';', pos1 + 1);
     size_t pos3 = s.find(';', pos2 + 1);
     size_t pos4 = s.find(';', pos3 + 1);
-
-    std::cout << "Posições encontradas: " << pos1 << ", " << pos2 << ", " << pos3 << ", " << pos4 << std::endl;
-    std::cout << "Posições encontradas: " << std::string::npos << std::endl;
 
     if(pos1 == std::string::npos || pos2 == std::string::npos || pos3 == std::string::npos || pos4 == std::string::npos) {
         throw std::invalid_argument("Invalid header format");

@@ -34,6 +34,7 @@ class Packet {
         
         void serialize(std::vector<char>& buffer);
         static Packet* deserialize(const std::vector<char>& buffer);
+        int getType() const { return type; }
         std::string toString();
 };
 // OBS: packet precisa ser serializada para enviar via socket, por possuir tipos que não são base, senão da merda do outro lado

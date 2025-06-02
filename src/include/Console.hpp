@@ -28,13 +28,12 @@ class Console {
         bool removeToken();
         bool addToken();
 
-        void readInput(std::vector<std::string>& input); // definir se vai fazer algo personalizado aqui ou não
+        void readInput(std::vector<std::string>& input);
 
         void printLog();
         void clearLog();
-
-        // não sei se tem como implementar essa função assim de um jeito fácil
-        void __exit(); // '__' porque exit já existe no C e geralmente '_' é método privado
+        
+        void __exit();
 };
 
 #endif

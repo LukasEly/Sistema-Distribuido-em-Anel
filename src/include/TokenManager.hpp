@@ -30,7 +30,6 @@ class TokenManager : public Client {
 
         void resetTokenTime() override;
         bool receivedToken(); // só sinaliza que recebeu o token para resetar o tempo, ou tratar o token
-        // Packet createTokenPacket(); // cria o pacote do token
 };
 
 #endif

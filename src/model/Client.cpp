@@ -1,4 +1,5 @@
 #include "src/include/Client.hpp"
+#include "src/include/Debug.hpp"
 
 Client::Client(std::string ipAddressNext, int port, std::string name, int tokenTimeout, bool hasToken) 
     : ipAddressNext(ipAddressNext), port(port), name(name), tokenTimeout(tokenTimeout), hasToken(hasToken) {
@@ -50,8 +51,7 @@ std::string Client::getName() const {
 }
 
 void Client::_sendPacket(Packet* packet) {
-
-    std::cout << "Enviando pacote: " << packet->toString() << std::endl;
+    std::cout << Debug::amarelo("Enviando pacote: ") << packet->toString() << std::endl;
 
     std::vector<char> buffer;
     packet->serialize(buffer);
@@ -96,14 +96,25 @@ void Client::addToken() {
 
 void Client::setPacketError(int percent) {
     if (percent < 0 || percent > 100) {
-        std::cerr << "Erro: porcentagem de erro deve estar entre 0 e 100." << std::endl;
+        std::cerr << Debug::vermelho("Erro: porcentagem de erro deve estar entre 0 e 100.") << std::endl;
         return;
     }
     this->_packetError = percent;
 }
 
-void handleMessage(std::string buffer) {
+void Client::handleMessage(const Packet* packet) {
+    std::cout << Debug::azul("Pacote é uma mensagem ") << std::endl;
+} 
 
+void Client::handleToken(const Packet* packet) {
+    std::cout << Debug::magenta("Pacote é um Token.") << std::endl;
+    resetTokenTime();
+    if (messageQueue.empty()) {
+        addToken();
+        std::cout << Debug::vermelho("Pacote não possui mensagens.") << std::endl;
+    } else {
+
+    }
 } 
 
 Client::~Client() {

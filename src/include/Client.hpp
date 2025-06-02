@@ -7,6 +7,7 @@
 #include <arpa/inet.h>
 #include <sys/select.h>
 
+#include "src/include/Debug.hpp"
 #include "Packet.hpp"
 
 #define LOCALPORT 6000
@@ -33,7 +34,6 @@ class Client {
 
         void _sendPacket(Packet* packet); // envia o pacote
 
-
     public:
     
         Client(std::string ipAddressNext, int port, std::string name, int tokenTimeout, bool hasToken);
@@ -44,7 +44,7 @@ class Client {
         bool enqueueMessage(std::string destination, std::string message); // já passa como packet ou como string?
         std::string dequeueMessage();
 
-        virtual void resetTokenTime() {} // No Client
+        virtual void resetTokenTime() {} 
 
         // funções de falhas
         void removeToken();
@@ -52,12 +52,17 @@ class Client {
         void setPacketError(int percent);
 
         bool hasTokenFlag() const { return hasToken; }
+        int getTokenTimeout() const { return tokenTimeout; }
+        int getPort() const { return port; }
 
-        void handleMessage();
+        void handleMessage(const Packet* packet);
         void handleToken(const Packet* packet);
         void handleAck(const Packet* packet);
         void handleNack(const Packet* packet);
         void handleNotExist(const Packet* packet);
+
+        Packet createTokenPacket(); // cria o pacote do token
+        Packet createMessagePacket(); // cria o pacote do token
 
         std::string toString() const;
 };

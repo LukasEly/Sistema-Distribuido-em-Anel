@@ -167,43 +167,50 @@ void SigmaProtocol::monitorSpecialPackets() {
         perror("Socket error");
         return;
     }
-    std::cout << "[DEBUG] Socket criado\n";
+    std::cout << std::endl << Debug::verde("Socket criado\n");
 
     memset(&serverAddr, 0, sizeof(serverAddr));
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_addr.s_addr = INADDR_ANY;
-    serverAddr.sin_port = htons(12345);
+    serverAddr.sin_port = htons(client->getPort());
 
     if (bind(sock, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
         perror("Bind failed");
         close(sock);
         return;
     }
-    std::cout << "[DEBUG] Bind realizado na porta 12345\n";
+    std::cout << Debug::verde("Bind realizado na porta: ") << client->getPort() << std::endl; 
 
     while (!stopThreadP) {
-        std::cout << "[DEBUG] Esperando pacote...\n";
+        std::cout << Debug::amarelo("Esperando pacote...\n");
         int bytesReceived = recvfrom(sock, buffer, sizeof(buffer) - 1, 0,
                                     (struct sockaddr*)&serverAddr, &addrLen);
         if (bytesReceived > 0) {
             buffer[bytesReceived] = '\0';
-            std::cout << "[DEBUG] Pacote recebido: " << buffer << std::endl;
+            std::cout << Debug::amarelo("Pacote recebido: ") << buffer << std::endl;
 
             try {
                 Packet* packet = Packet::deserialize(std::vector<char>(buffer, buffer + bytesReceived));
                 if (packet) {
-                    std::cout << "[DEBUG] Pacote desserializado com sucesso: " << packet->toString() << std::endl;
-                    // Trate o pacote normalmente aqui
-                    // Exemplo:
-                    // if (packet->getType() == 9000) { ... }
-                    delete packet; // Libere se necessário
+
+                    std::cout << Debug::verde("Pacote desserializado com sucesso: ") << packet->toString() << std::endl;
+                    if (packet->getType() == 9000) {
+                        std::this_thread::sleep_for(std::chrono::seconds(client->getTokenTimeout()));
+                        client->handleToken(packet); 
+                    }
+                    else if(packet->getType() == 7777) {
+                        std::this_thread::sleep_for(std::chrono::seconds(client->getTokenTimeout()));
+                        client->handleMessage(packet); 
+                    }
+                    delete packet;
+
                 } else {
-                    std::cout << "[ERRO] Falha ao desserializar o pacote.\n";
+                    std::cout << Debug::vermelho("[ERRO] Falha ao desserializar o pacote.\n");
                 }
             } catch (const std::exception& e) {
-                std::cout << "[ERRO] Exceção ao desserializar pacote: " << e.what() << std::endl;
+                std::cout << Debug::erroVermelho("Exceção ao desserializar pacote: ") << e.what() << std::endl;
             } catch (...) {
-                std::cout << "[ERRO] Exceção desconhecida ao desserializar pacote.\n";
+                std::cout << Debug::erroVermelho("Exceção desconhecida ao desserializar pacote.") << std::endl;
             }
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
