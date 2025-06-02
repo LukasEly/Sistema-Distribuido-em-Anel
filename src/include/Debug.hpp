@@ -37,27 +37,8 @@ public:
     static std::string branco(const std::string& msg) {
         return DebugColor::WHITE + "[DEBUG] " + DebugColor::RESET + DebugColor::WHITE + msg + DebugColor::RESET;
     }
-
-    static std::string erroAmarelo(const std::string& msg) {
-        return DebugColor::WHITE + "[ERRO] " + DebugColor::RESET + DebugColor::YELLOW + msg + DebugColor::RESET;
-    }
-    static std::string erroVermelho(const std::string& msg) {
+    static std::string erro(const std::string& msg) {
         return DebugColor::WHITE + "[ERRO] " + DebugColor::RESET + DebugColor::RED + msg + DebugColor::RESET;
-    }
-    static std::string erroVerde(const std::string& msg) {
-        return DebugColor::WHITE + "[ERRO] " + DebugColor::RESET + DebugColor::GREEN + msg + DebugColor::RESET;
-    }
-    static std::string erroAzul(const std::string& msg) {
-        return DebugColor::WHITE + "[ERRO] " + DebugColor::RESET + DebugColor::BLUE + msg + DebugColor::RESET;
-    }
-    static std::string erroMagenta(const std::string& msg) {
-        return DebugColor::WHITE + "[ERRO] " + DebugColor::RESET + DebugColor::MAGENTA + msg + DebugColor::RESET;
-    }
-    static std::string erroCiano(const std::string& msg) {
-        return DebugColor::WHITE + "[ERRO] " + DebugColor::RESET + DebugColor::CYAN + msg + DebugColor::RESET;
-    }
-    static std::string erroBranco(const std::string& msg) {
-        return DebugColor::WHITE + "[ERRO] " + DebugColor::RESET + DebugColor::WHITE + msg + DebugColor::RESET;
     }
 };
 

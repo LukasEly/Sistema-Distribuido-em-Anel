@@ -96,7 +96,7 @@ void Client::addToken() {
 
 void Client::setPacketError(int percent) {
     if (percent < 0 || percent > 100) {
-        std::cerr << Debug::vermelho("Erro: porcentagem de erro deve estar entre 0 e 100.") << std::endl;
+        std::cerr << Debug::erro("porcentagem de erro deve estar entre 0 e 100.") << std::endl;
         return;
     }
     this->_packetError = percent;
@@ -104,18 +104,70 @@ void Client::setPacketError(int percent) {
 
 void Client::handleMessage(const Packet* packet) {
     std::cout << Debug::azul("Pacote é uma mensagem ") << std::endl;
+    if (packet->getDestino() == this->name) {
+
+        if(packet->getEstado() == "naoexiste") {
+            std::cout << Debug::verde("Mensagem recebida com sucesso: ") << packet->toString() << std::endl;
+            handleNotExist(packet);
+        } else if(packet->getEstado() == "ACK") {
+            std::cout << Debug::verde("Mensagem recebida com sucesso: ") << packet->toString() << std::endl;
+            handleAck(packet);
+        } else if(packet->getEstado() == "NACK") {
+            std::cout << Debug::vermelho("Mensagem com algum problema NACK: ") << packet->toString() << std::endl;
+            handleNack(packet);
+        } else {
+            std::cout << Debug::erro("Mensagem recebida, mas controle de ERRO inconsistente ") << packet->getEstado() << std::endl;
+        }
+    } else if((packet->getOrigem() == this->name) ) {
+        std::cout << Debug::erro("Mensagem não enviada, destino inválido: ") << packet->getDestino() << std::endl;
+        addToken();
+        return;
+    } else {
+        std::cout << Debug::vermelho("Mensagem não é para mim, ignorando.") << std::endl;
+        Packet msgPacket(*packet);
+        _sendPacket(&msgPacket);
+    }
 } 
 
 void Client::handleToken(const Packet* packet) {
     std::cout << Debug::magenta("Pacote é um Token.") << std::endl;
     resetTokenTime();
     if (messageQueue.empty()) {
-        addToken();
         std::cout << Debug::vermelho("Pacote não possui mensagens.") << std::endl;
+        addToken();
     } else {
-
+        std::cout << Debug::amarelo("Pacote possui mensagens.") << std::endl;
+        Packet* msgPacket = messageQueue.front();
+        _sendPacket(msgPacket);
+        messageQueue.pop_front();
+        std::cout << Debug::verde("Pacote enviado: ") << msgPacket->toString() << std::endl;
+        delete msgPacket; // libera a memória do pacote enviado
     }
 } 
+
+void Client::handleNack(const Packet* packet) {
+}
+void Client::handleAck(const Packet* packet) {
+}
+void Client::handleNotExist(const Packet* packet) {
+    
+    if(packet->isCrcOk()) {
+
+        Header* header = new Header("ACK", this->name, packet->getOrigem());
+        Packet* msgPacket = new Packet(7777, header, packet->getPayload());
+
+        _sendPacket(msgPacket);
+        std::cout << Debug::verde("Pacote enviado com ACK: ") << msgPacket->toString() << std::endl;
+
+    } else {
+        Header* header = new Header("NACK", this->name, packet->getOrigem());
+        Packet* msgPacket = new Packet(7777, header, packet->getPayload());
+
+        _sendPacket(msgPacket);
+        std::cout << Debug::erro("Pacote enviado com NACK: ") << msgPacket->toString() << std::endl;
+    }
+
+}
 
 Client::~Client() {
     messageQueue.clear(); // não precisava, mas vai ser feito de qualquer forma, então tanto faz

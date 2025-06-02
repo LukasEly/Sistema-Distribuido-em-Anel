@@ -46,6 +46,8 @@ class Client {
 
         virtual void resetTokenTime() {} 
 
+        bool isCrcOk(const Packet* packet);
+        
         // funções de falhas
         void removeToken();
         void addToken();
@@ -60,9 +62,6 @@ class Client {
         void handleAck(const Packet* packet);
         void handleNack(const Packet* packet);
         void handleNotExist(const Packet* packet);
-
-        Packet createTokenPacket(); // cria o pacote do token
-        Packet createMessagePacket(); // cria o pacote do token
 
         std::string toString() const;
 };

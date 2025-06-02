@@ -205,12 +205,12 @@ void SigmaProtocol::monitorSpecialPackets() {
                     delete packet;
 
                 } else {
-                    std::cout << Debug::vermelho("[ERRO] Falha ao desserializar o pacote.\n");
+                    std::cout << Debug::erro("Falha ao desserializar o pacote.\n");
                 }
             } catch (const std::exception& e) {
-                std::cout << Debug::erroVermelho("Exceção ao desserializar pacote: ") << e.what() << std::endl;
+                std::cout << Debug::erro("Exceção ao desserializar pacote: ") << e.what() << std::endl;
             } catch (...) {
-                std::cout << Debug::erroVermelho("Exceção desconhecida ao desserializar pacote.") << std::endl;
+                std::cout << Debug::erro("Exceção desconhecida ao desserializar pacote.") << std::endl;
             }
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(50));

@@ -1,4 +1,5 @@
 #include "src/include/Packet.hpp"
+#include <zlib.h>
 
 Header::Header(std::string estado, std::string nomeOrigem, std::string nomeDestino) : estado(estado), nomeOrigem(nomeOrigem), nomeDestino(nomeDestino) {
     this->crc32 = ""; // só calcula header depois
@@ -10,6 +11,28 @@ int Header::size() {
 
 std::string Header::toString() {
     return estado + ";" + nomeOrigem + ";" + nomeDestino + ";" + crc32;
+}
+
+Packet::Packet(int type, Header* header, std::string payload, std::string crc32) : type(type), header(header), payload(payload) {
+    if(type != 9000 && type != 7777) {
+        throw std::invalid_argument("Invalid packet type");
+    }
+
+    bool isToken = (type == 9000);
+
+    if(isToken) {
+        this->header = nullptr;
+        return;
+    }
+
+    if(!isToken && header == nullptr) {
+        throw std::invalid_argument("Header is null");
+    } 
+
+    this->header = header;
+
+    this->header->crc32 = crc32;
+
 }
 
 Packet::Packet(int type, Header* header, std::string payload) : payload(payload) {
@@ -131,16 +154,32 @@ Packet* Packet::deserialize(const std::vector<char>& buffer) {
     
     std::string payload = s.substr(pos4 + 1);
 
-    return new Packet(type, header, payload);
+    return new Packet(type, header, payload, crc32);
 }
 
-std::string Packet::toString() {
+std::string Packet::toString() const {
     std::string result = std::to_string(type);
     if(header != nullptr) {
         result += ':' + header->toString() + ';';
     }
     result += payload;
     return result;
+}
+
+bool Packet::isCrcOk() const {
+    if (!header) return true; // Se não tem header, considere válido (ou ajuste conforme sua lógica)
+    uLong crc = crc32(0L, Z_NULL, 0);
+    crc = crc32(crc, reinterpret_cast<const Bytef*>(payload.c_str()), payload.size());
+    return std::to_string(crc) == header->crc32;
+}
+
+Packet::Packet(const Packet& other)
+    : type(other.type), payload(other.payload)
+{
+    if (other.header)
+        header = new Header(*other.header);
+    else
+        header = nullptr;
 }
 
 Packet::~Packet() {
