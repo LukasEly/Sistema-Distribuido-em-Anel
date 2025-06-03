@@ -127,7 +127,7 @@ void SigmaProtocol::start() {
 
             break;
         case 4:
-            client->addToken();    
+            client->sendToken();    
 
             break;
         case 5: 
@@ -182,7 +182,7 @@ void SigmaProtocol::monitorSpecialPackets() {
     std::cout << Debug::verde("Bind realizado na porta: ") << client->getPort() << std::endl; 
 
     while (!stopThreadP) {
-        std::cout << Debug::amarelo("Esperando pacote...\n");
+        // std::cout << Debug::amarelo("Esperando pacote...\n");
         int bytesReceived = recvfrom(sock, buffer, sizeof(buffer) - 1, 0,
                                     (struct sockaddr*)&serverAddr, &addrLen);
         if (bytesReceived > 0) {
@@ -193,7 +193,7 @@ void SigmaProtocol::monitorSpecialPackets() {
                 Packet* packet = Packet::deserialize(std::vector<char>(buffer, buffer + bytesReceived));
                 if (packet) {
 
-                    std::cout << Debug::verde("Pacote desserializado com sucesso: ") << packet->toString() << std::endl;
+                    // std::cout << Debug::verde("Pacote desserializado com sucesso: ") << packet->toString() << std::endl;
                     if (packet->getType() == 9000) {
                         std::this_thread::sleep_for(std::chrono::seconds(client->getTokenTimeout()));
                         client->handleToken(packet); 

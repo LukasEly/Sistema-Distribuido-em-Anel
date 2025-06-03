@@ -140,7 +140,7 @@ void Client::handleToken(const Packet* packet) {
         Packet* msgPacket = messageQueue.front();
         _sendPacket(msgPacket);
         std::cout << Debug::verde("Pacote enviado: ") << msgPacket->toString() << std::endl;
-        delete msgPacket; // libera a memória do pacote enviado
+        // delete msgPacket; // libera a memória do pacote enviado
     }
 } 
 
@@ -150,10 +150,14 @@ void Client::handleNack(const Packet* packet) {
     _sendPacket(msgPacket);
     delete msgPacket;
 }
+
 void Client::handleAck(const Packet* packet) {
-    messageQueue.pop_front();
+    Packet* sentPacket = messageQueue.front();
+    delete sentPacket;  // libera a memória
+    messageQueue.pop_front();  // remove da lista
     sendToken();
 }
+
 void Client::handleNotExist(const Packet* packet) {
     
     if(packet->isCrcOk()) {
