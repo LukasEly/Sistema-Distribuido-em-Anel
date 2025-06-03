@@ -42,11 +42,11 @@ class Client {
         std::string getName() const;
 
         bool enqueueMessage(std::string destination, std::string message); // já passa como packet ou como string?
-        std::string dequeueMessage();
+        void dequeueMessage();
 
         virtual void resetTokenTime() {} 
 
-        bool isCrcOk(const Packet* packet);
+        // bool isCrcOk(const Packet* packet); // já ta definido em packet
         
         // funções de falhas
         void removeToken();
@@ -57,7 +57,7 @@ class Client {
         int getTokenTimeout() const { return tokenTimeout; }
         int getPort() const { return port; }
 
-        void handleMessage(const Packet* packet);
+        void handleMessage(Packet* packet);
         void handleToken(const Packet* packet);
         void handleAck(const Packet* packet);
         void handleNack(const Packet* packet);

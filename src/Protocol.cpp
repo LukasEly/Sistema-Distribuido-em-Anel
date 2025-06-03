@@ -100,7 +100,12 @@ void SigmaProtocol::start() {
                 std::cout << "Erro: <destino> e <mensagem> são obrigatórios.\n";
                 continue;
             }
-          
+            
+            if(input[1] == this->client->getName()) {
+                std::cout << "Erro: não é permitido enviar mensagem para si mesmo.\n";
+                continue;
+            }
+
             if(!client->enqueueMessage(input[1], input[2])) {
                 std::cout << "Erro: número máximo de mensagens atingido.\n";
                 continue;
