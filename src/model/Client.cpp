@@ -34,7 +34,6 @@ Client::Client(std::string ipAddressNext, int port, std::string name, int tokenT
     dst.sin_port = htons(this->port); // porta de destino
     inet_pton(AF_INET, ipAddressNext.c_str(), &dst.sin_addr);
 
-    _removeToken = false;
 }
 
 std::string Client::toString() const {
@@ -50,13 +49,37 @@ std::string Client::getName() const {
     return name;
 }
 
+bool Client::shouldCorruptPacket() {
+    int valor = 0;
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dist(1, 100);
+    valor = dist(gen);
+    printf("Valor gerado: %d, porcentagem de erro: %d\n", valor, _packetError);
+    return valor <= _packetError;
+}
+
 void Client::_sendPacket(Packet* packet) {
     std::cout << Debug::amarelo("Enviando pacote: ") << packet->toString() << std::endl;
 
+    Packet* pacoteEnvio = packet; // ponteiro padrão
+
+    if (packet->getType() == 7777) {
+        if(shouldCorruptPacket()) { // só corrompe pacotes de mensagem
+            pacoteEnvio = new Packet(*packet); // faz uma cópia
+            pacoteEnvio->setCrc32("123456789"); // corrompe o CRC só na cópia
+            std::cout << Debug::vermelho("CRC corrompido propositalmente!") << std::endl;
+        }
+    }
+
     std::vector<char> buffer;
-    packet->serialize(buffer);
+    pacoteEnvio->serialize(buffer);
 
     sendto(clientSocket, buffer.data(), buffer.size(), 0, (struct sockaddr*)&dst, sizeof(dst));
+
+    if (pacoteEnvio != packet) {
+        delete pacoteEnvio; // libera a cópia se foi criada
+    }
 }
 
 bool Client::enqueueMessage(std::string destination, std::string message) {
@@ -84,7 +107,6 @@ void Client::removeToken() {
         hasToken = false;
         return;
     }
-    _removeToken = true; // tem que tratar o token no recebimento
 }
 
 void Client::sendToken() {
@@ -97,23 +119,18 @@ void Client::sendToken() {
 
 void Client::setPacketError(int percent) {
     if (percent < 0 || percent > 100) {
-        std::cerr << Debug::erro("porcentagem de erro deve estar entre 0 e 100.") << std::endl;
+        std::cout << Debug::erro("porcentagem de erro deve estar entre 0 e 100.") << std::endl;
         return;
     }
     this->_packetError = percent;
 }
 
 void Client::handleMessage(Packet* packet) {
-    std::cout << Debug::azul("Pacote é uma mensagem ") << std::endl;
-    
-    // --------------------------------------- IMPORTANTE LER ISSO AQUI SE EU ME ESQUECI DE FALAR
+    std::cout << Debug::azul("Pacote é uma mensagem ") << std::endl;;
 
-    resetTokenTime(); // precisa testar, mas com os testes que eu tinha feito antes, tava gerando muita duplicação de pacote, por causa do tempo que o ack levava pra chegar
-
-    // ---------------------------------------- LUKAS CONKA, LÊ O COMENTÁRIO E VÊ SE CONCORDA COMIGO
+    resetTokenTime();
 
     if (packet->getDestino() == this->name) {
-
         if(packet->getEstado() == "naoexiste") {
             std::cout << Debug::verde("Mensagem recebida com sucesso: ") << packet->toString() << std::endl;
             handleNotExist(packet);
@@ -133,11 +150,9 @@ void Client::handleMessage(Packet* packet) {
         return;
     } else if (packet->getDestino() == "TODOS" && packet->getOrigem() != this->name) {
         std::cout << Debug::ciano("Mensagem recebida para TODOS: ") << packet->toString() << std::endl;
-        // acho que não faz nada, não faz sentido mandar ack, senão vai flodar tudo, então só passa adiante
-        _sendPacket(packet); // envia o pacote para todos os outros clientes
+        _sendPacket(packet);
     } else if (packet->getDestino() == "TODOS" && packet->getOrigem() == this->name) {
         std::cout << Debug::azul("Finalizando ciclo de mensagem enviada para TODOS: ") << packet->toString() << std::endl;
-        // não faz mais nada, termina aqui
     } else {
         std::cout << Debug::vermelho("Mensagem não é para mim, ignorando.") << std::endl;
         _sendPacket(packet);
@@ -146,8 +161,8 @@ void Client::handleMessage(Packet* packet) {
 
 void Client::handleToken(const Packet* packet) {
     std::cout << Debug::magenta("Pacote é um Token.") << std::endl;
-    resetTokenTime(); // acho que talvez seja interessante resetar o tempo do token toda vez que recebe uma menagem, porque tem mais o tempo do ack,
-                      // então o token manager só analisa de ainda ta circulando mensagens no anel, então eu vou colocar essa linha quando receber uma mensagem
+    this->hasToken = true;
+    resetTokenTime();
     if (messageQueue.empty()) {
         std::cout << Debug::vermelho("Pacote não possui mensagens.") << std::endl;
         sendToken();
@@ -157,8 +172,6 @@ void Client::handleToken(const Packet* packet) {
         _sendPacket(msgPacket);
         std::cout << Debug::verde("Pacote enviado: ") << msgPacket->toString() << std::endl;
 
-        
-        // no caso onde o destino é "TODOS", não faz sentido enviar ACK ou NACK, pois é um broadcast
         if(msgPacket->getDestino() == "TODOS") {
             this->dequeueMessage();
             sendToken();
@@ -167,14 +180,6 @@ void Client::handleToken(const Packet* packet) {
 } 
 
 void Client::handleNack(const Packet* packet) {
-    /* Não da pra reutilizar o pacote que ta corrompido né mano ;-;
-
-    Header* header = new Header("naoexiste", this->name, packet->getOrigem());
-    Packet* msgPacket = new Packet(7777, header, packet->getPayload());
-    _sendPacket(msgPacket);
-    delete msgPacket;
-    */
-
     if(messageQueue.empty()) {
         std::cout << Debug::vermelho("Fila de mensagens está vazia, não há o que reenviar.") << std::endl;
         return;
@@ -186,39 +191,33 @@ void Client::handleNack(const Packet* packet) {
     }
 }
 
-void Client::handleAck(const Packet* packet) {
-    this->dequeueMessage(); 
-    sendToken();
-}
-
 void Client::dequeueMessage() {
     if (!messageQueue.empty()) {
         Packet* packet = messageQueue.front();
         messageQueue.pop_front();
-        delete packet;  // libera a memória do pacote
+        delete packet;
     } else {
         std::cout << Debug::vermelho("Fila de mensagens está vazia.") << std::endl;
     }
 }
 
 void Client::handleNotExist(const Packet* packet) {
-    
     if(packet->isCrcOk()) {
-
         Header* header = new Header("ACK", this->name, packet->getOrigem());
         Packet* msgPacket = new Packet(7777, header, packet->getPayload());
-
         _sendPacket(msgPacket);
         std::cout << Debug::verde("Pacote enviado com ACK: ") << msgPacket->toString() << std::endl;
-
     } else {
         Header* header = new Header("NACK", this->name, packet->getOrigem());
         Packet* msgPacket = new Packet(7777, header, packet->getPayload());
-
         _sendPacket(msgPacket);
         std::cout << Debug::erro("Pacote enviado com NACK: ") << msgPacket->toString() << std::endl;
     }
+}
 
+void Client::handleAck(const Packet* packet) {
+    this->dequeueMessage(); 
+    sendToken();
 }
 
 Client::~Client() {

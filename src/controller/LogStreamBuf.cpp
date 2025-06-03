@@ -7,10 +7,6 @@ int LogStreamBuf::overflow(int c) {
         char ch = static_cast<char>(c);
         buffer += ch;
 
-        if(original) {
-            original->sputc(ch); // ainda imprime no terminal
-        }
-
         if (ch == '\n') {
             saveLog(buffer);
             buffer.clear();

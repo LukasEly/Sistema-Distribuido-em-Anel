@@ -46,6 +46,8 @@ void TokenManager::resetTokenTime() {
     tokenTime = 0; 
 }
 
+
+
 TokenManager::~TokenManager() {
     stopThread = true;
     if (tokenThread.joinable()) {

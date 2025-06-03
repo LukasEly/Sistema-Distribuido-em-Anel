@@ -6,6 +6,7 @@
 #include <list>
 #include <arpa/inet.h>
 #include <sys/select.h>
+#include <random>
 
 #include "src/include/Debug.hpp"
 #include "Packet.hpp"
@@ -28,8 +29,6 @@ class Client {
 
         std::list<Packet*> messageQueue; // melhor usar packet ou string?
 
-        // variáveis de falhas
-        bool _removeToken;
         int _packetError; 
 
         void _sendPacket(Packet* packet); // envia o pacote
@@ -52,6 +51,7 @@ class Client {
         void removeToken();
         void sendToken();
         void setPacketError(int percent);
+        bool shouldCorruptPacket();
 
         bool hasTokenFlag() const { return hasToken; }
         int getTokenTimeout() const { return tokenTimeout; }

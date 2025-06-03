@@ -29,9 +29,6 @@ SigmaProtocol::SigmaProtocol(int numDevices) : numDevices(numDevices) {
         if (pos != std::string::npos) {
             ipAddressNext = linha.substr(0, pos);
             port = std::stoi(linha.substr(pos + 1));
-
-            printf("IP: %s\n", ipAddressNext.c_str());
-            printf("Porta: %d\n", port);
         } else {
             std::cerr << "Formato inválido na linha. Esperado: ip:porta" << std::endl;
         }
@@ -41,17 +38,14 @@ SigmaProtocol::SigmaProtocol(int numDevices) : numDevices(numDevices) {
 
     if (std::getline(file, linha)) {
         name = linha;
-        printf("Nome: %s\n", name.c_str());
     }
 
     if (std::getline(file, linha)) {
         tokenTimeout = std::stoi(linha);
-        printf("Token Timeout: %d\n", tokenTimeout);
     }
 
     if (std::getline(file, linha)) {
         hasToken = (linha == "true");
-        printf("Has Token: %s\n", (hasToken ? "true" : "false"));
     }
 
     file.close();
@@ -63,14 +57,15 @@ SigmaProtocol::SigmaProtocol(int numDevices) : numDevices(numDevices) {
     }    
     
 
-    printf(" ---------------------------------- cliente ---------------------------------- \n");
-    printf("%s\n" ,client->toString().c_str());
-    printf(" ----------------------------------------------------------------------------- \n");
+    printf("---------------------------------- Cliente ---------------------------------- \n");
+    printf("%s" ,client->toString().c_str());
+    printf("----------------------------------------------------------------------------- \n");
 }
 
 
 void SigmaProtocol::start() {
     std::vector<std::string> input;
+    int valor = 0;
 
     // Inicia a thread de monitoramento de pacotes especiais
     stopThreadP = false;
@@ -95,69 +90,69 @@ void SigmaProtocol::start() {
 
         switch (tipo)
         {
-        case 1:
-            if(input.size() < 3) {
-                std::cout << "Erro: <destino> e <mensagem> são obrigatórios.\n";
-                continue;
-            }
-            
-            if(input[1] == this->client->getName()) {
-                std::cout << "Erro: não é permitido enviar mensagem para si mesmo.\n";
-                continue;
-            }
+            case 1:
 
-            if(!client->enqueueMessage(input[1], input[2])) {
-                std::cout << "Erro: número máximo de mensagens atingido.\n";
-                continue;
-            };
+                if(input.size() < 3) {
+                    printf("Erro: <destino> e <mensagem> são obrigatórios.\n");
+                    continue;
+                }
+                if(input[1] == this->client->getName()) {
+                    printf("Erro: não é permitido enviar mensagem para si mesmo.\n");
+                    continue;
+                }
+                if(!client->enqueueMessage(input[1], input[2])) {
+                    printf("Erro: número máximo de mensagens atingido.\n");
+                    continue;
+                }
+                break;
 
-            break;
-        case 2:
-            if(input.size() < 2) {
-                std::cout << "Erro: <mensagem> é obrigatória.\n";
-                continue;
-            }
+            case 2:
 
-            std::cout << "mensagem que eu mandei pra todo mundo\n";
-            std::cout << input[1] << std::endl;
+                if(input.size() < 2) {
+                    printf("Erro: <mensagem> é obrigatória.\n");
+                    continue;
+                }
+                if(!client->enqueueMessage("TODOS", input[1])) {
+                    printf("Erro: número máximo de mensagens atingido.\n");
+                    continue;
+                }
+                break;
 
-            if(!client->enqueueMessage("TODOS", input[1])) {
-                std::cout << "Erro: número máximo de mensagens atingido.\n";
-                continue;
-            };
+            case 3:
+                client->removeToken();
+                break;
+            case 4:
+                client->sendToken();    
+                break;
+            case 5: 
+                if(input.size() < 2) {
+                    printf("Erro: <porcentagem de erro> é obrigatória.\n");
+                    continue;
+                }
+                valor = std::stoi(input[1]);
+                if (valor < 0 || valor > 100) {
+                    printf("Erro: porcentagem deve estar entre 0 e 100.\n");
+                    continue;
+                }
+                client->setPacketError(valor);
+                std::cout << Debug::verde("[INFO] Porcentagem de erro definida para: ") << valor << "%" << std::endl;
+                
+                break;
 
-            break;
-        case 3:
-            client->removeToken();
-
-            break;
-        case 4:
-            client->sendToken();    
-
-            break;
-        case 5: 
-            if(input.size() < 2) {
-                std::cout << "Erro: <porcentagem de erro> é obrigatória.\n";
-                continue;
-            }
-        
-            break;
-        case 6:
-            console.clearScreen();
-            console.printLog();
-            
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::cin.get();          
-
-            break;
-        case 7:
-            // Finaliza o loop e encerra o programa
-            stopThreadP = true;
-            console.__exit();
-            break;
-        default:
-            printf("Erro: <tipo> deve ser um número inteiro entre 1 e 7.\n");
-            break;
+            case 6:
+                console.clearScreen();
+                console.printLog();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cin.get();          
+                break;
+            case 7:
+                // Finaliza o loop e encerra o programa
+                stopThreadP = true;
+                console.__exit();
+                break;
+            default:
+                std::cout << "Erro: <tipo> deve ser um número inteiro entre 1 e 7.\n";
+                break;
         }
     }
 }
@@ -172,7 +167,7 @@ void SigmaProtocol::monitorSpecialPackets() {
         perror("Socket error");
         return;
     }
-    std::cout << std::endl << Debug::verde("Socket criado\n");
+    std::cout << Debug::verde("Socket criado") << std::endl;
 
     memset(&serverAddr, 0, sizeof(serverAddr));
     serverAddr.sin_family = AF_INET;
@@ -184,21 +179,20 @@ void SigmaProtocol::monitorSpecialPackets() {
         close(sock);
         return;
     }
-    std::cout << Debug::verde("Bind realizado na porta: ") << client->getPort() << std::endl; 
+    std::cout << Debug::verde("Bind realizado na porta: ") << std::to_string(client->getPort()) << std::endl;
 
     while (!stopThreadP) {
-        // std::cout << Debug::amarelo("Esperando pacote...\n");
+        std::cout << Debug::amarelo("Esperando pacote...") << std::endl;
         int bytesReceived = recvfrom(sock, buffer, sizeof(buffer) - 1, 0,
                                     (struct sockaddr*)&serverAddr, &addrLen);
         if (bytesReceived > 0) {
             buffer[bytesReceived] = '\0';
-            std::cout << Debug::amarelo("Pacote recebido: ") << buffer << std::endl;
+            std::cout << Debug::amarelo("Pacote recebido: ") << std::string(buffer) << std::endl;
 
             try {
                 Packet* packet = Packet::deserialize(std::vector<char>(buffer, buffer + bytesReceived));
                 if (packet) {
-
-                    // std::cout << Debug::verde("Pacote desserializado com sucesso: ") << packet->toString() << std::endl;
+                    // Debug::verde("Pacote desserializado com sucesso: " + packet->toString());
                     if (packet->getType() == 9000) {
                         std::this_thread::sleep_for(std::chrono::seconds(client->getTokenTimeout()));
                         client->handleToken(packet); 
@@ -208,9 +202,8 @@ void SigmaProtocol::monitorSpecialPackets() {
                         client->handleMessage(packet); 
                     }
                     delete packet;
-
                 } else {
-                    std::cout << Debug::erro("Falha ao desserializar o pacote.\n");
+                    std::cout << Debug::erro("Falha ao desserializar o pacote.");
                 }
             } catch (const std::exception& e) {
                 std::cout << Debug::erro("Exceção ao desserializar pacote: ") << e.what() << std::endl;

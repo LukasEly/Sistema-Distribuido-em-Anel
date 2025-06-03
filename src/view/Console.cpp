@@ -44,26 +44,58 @@ void Console::readInput(std::vector<std::string>& input) {
 
     switch (type)
     {
+    case 5:
+        clearScreen(); 
+        printf("1. Voltar ao menu\n\n");
+        printf("Digite a <porcentagem> de chance de acontecer um erro em uma mensagem: ");
+
+        std::cin >> arg1;
+        input.push_back(arg1);
+ 
+        if (arg1 == "1") {
+            clearScreen();
+            break;
+        }
+        break;
     case 3 ... 4:
     case 6 ... 7:
         // só precisa de 1 argumento (type)
         break;
     
     case 2:
-    case 5:
+        clearScreen();
+        printf("1. Voltar ao menu\n\n");
+        printf("Digite a <mensagem> a ser enviada para todo mundo: ");  
         std::getline(std::cin >> std::ws, arg1); 
-        input.push_back(arg1);
+        input.push_back(arg1);  
+        if (arg1 == "1") {
+            clearScreen();
+            break;
+        }
         break;
-
     case 1:
-
+        clearScreen();  
+        printf("1. Voltar ao menu\n\n");
+        printf("Digite o <destino>: ");
+        
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Limpa o buffer
         std::cin >> arg1;
         input.push_back(arg1);
-        
+
+        if (arg1 == "1") {
+            clearScreen();
+            break;
+        }
+        printf("Digite a <mensagem>: ");
         std::getline(std::cin >> std::ws, arg2); 
         input.push_back(arg2);
-        break;
 
+        printf("1. Voltar ao menu\n");
+        if (arg2 == "1") {
+            clearScreen();
+            break;
+        }
+        break;
     default:
         break;
     }

@@ -43,6 +43,8 @@ class Packet {
         std::string getEstado() const { return header->estado; }
         std::string getCrc32() const { return header->crc32; }
         std::string getPayload() const { return payload; }
+        
+        void setCrc32(const std::string& crc32) { header->crc32 = crc32; }
 
         std::string toString() const;
 
