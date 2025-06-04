@@ -61,6 +61,8 @@ class Client {
         bool hasTokenFlag() const { return hasToken; }
         int getTokenTimeout() const { return tokenTimeout; }
         int getPort() const { return port; }
+        
+        void setToken(bool token) { hasToken = token; }
 
         void handleMessage(Packet* packet);
         void handleToken();

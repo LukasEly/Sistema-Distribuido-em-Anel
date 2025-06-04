@@ -182,8 +182,8 @@ void Client::handleMessage(Packet* packet) {
             Header* header = new Header("NACK", this->name, packet->getOrigem());
             Packet* msgPacket = new Packet(7777, header, packet->getPayload());
             _sendPacket(msgPacket);
-            delete msgPacket;
             std::cout << Debug::erro("Pacote enviado com NACK: ") << msgPacket->toString() << std::endl;
+            delete msgPacket;
         } else {
             _sendPacket(packet);
         }

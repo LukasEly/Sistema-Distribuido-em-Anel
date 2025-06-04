@@ -122,7 +122,8 @@ void SigmaProtocol::start() {
                 client->removeToken();
                 break;
             case 4:
-                client->sendToken();    
+                client->setToken(true);
+                client->sendToken();
                 break;
             case 5: 
                 if(input.size() < 2) {
