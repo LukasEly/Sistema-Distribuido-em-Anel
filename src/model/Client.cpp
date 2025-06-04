@@ -179,7 +179,7 @@ void Client::handleMessage(Packet* packet) {
         return;
     } else if (packet->getDestino() == "TODOS" && packet->getOrigem() != this->name) {
 
-        std::cout << Debug::ciano("Mensagem recebida para TODOS: ") << packet->toString() << std::endl;
+        std::cout << Debug::azul("Mensagem recebida para TODOS: ") << packet->toString() << std::endl;
 
         if(!packet->isCrcOk()) {
             Header* header = new Header("NACK", this->name, packet->getOrigem());

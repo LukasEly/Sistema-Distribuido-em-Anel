@@ -113,7 +113,7 @@ void SigmaProtocol::start() {
                     continue;
                 }
                 if(!client->enqueueMessage("TODOS", input[1])) {
-                    printf("Erro: número máximo de mensagens atingido.\n");
+                    std::cout << Debug::vermelho("Número máximo de mensagens atingido.") << std::endl;
                     continue;
                 }
                 break;
