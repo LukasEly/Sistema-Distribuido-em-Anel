@@ -175,8 +175,18 @@ void Client::handleMessage(Packet* packet) {
         sendToken();
         return;
     } else if (packet->getDestino() == "TODOS" && packet->getOrigem() != this->name) {
+
         std::cout << Debug::ciano("Mensagem recebida para TODOS: ") << packet->toString() << std::endl;
-        _sendPacket(packet);
+
+        if(!packet->isCrcOk()) {
+            Header* header = new Header("NACK", this->name, packet->getOrigem());
+            Packet* msgPacket = new Packet(7777, header, packet->getPayload());
+            _sendPacket(msgPacket);
+            std::cout << Debug::erro("Pacote enviado com NACK: ") << msgPacket->toString() << std::endl;
+        } else {
+            _sendPacket(packet);
+        }
+        
     } else if (packet->getDestino() == "TODOS" && packet->getOrigem() == this->name) {
         std::cout << Debug::azul("Finalizando ciclo de mensagem enviada para TODOS: ") << packet->toString() << std::endl;
         this->dequeueMessage();
