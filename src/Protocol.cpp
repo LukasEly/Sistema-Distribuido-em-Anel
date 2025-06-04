@@ -97,11 +97,11 @@ void SigmaProtocol::start() {
                     continue;
                 }
                 if(input[1] == this->client->getName()) {
-                    printf("Erro: não é permitido enviar mensagem para si mesmo.\n");
+                    std::cout << Debug::vermelho("Erro: não é permitido enviar mensagem para si mesmo.") << std::endl;;
                     continue;
                 }
                 if(!client->enqueueMessage(input[1], input[2])) {
-                    printf("Erro: número máximo de mensagens atingido.\n");
+                    std::cout << Debug::vermelho("Número máximo de mensagens atingido.") << std::endl;
                     continue;
                 }
                 break;

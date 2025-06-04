@@ -58,6 +58,9 @@ public:
     static std::string onlyRed(const std::string& msg) {
         return DebugColor::RED + msg + DebugColor::RESET;
     }
+    static std::string exitMSG(const std::string& msg) {
+        return DebugColor::RED + "[EXIT] " + DebugColor::RESET + DebugColor::WHITE + msg + DebugColor::RESET;
+    }
 };
 
 #endif

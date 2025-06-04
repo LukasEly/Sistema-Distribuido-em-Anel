@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "Utils.hpp"
+#include "src/include/Debug.hpp"
 
 class Console {
 

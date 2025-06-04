@@ -127,6 +127,6 @@ void Console::clearLog() {
 }
 
 void Console::__exit() {
-    std::cout << "Saindo..." << std::endl;
+    std::cout  << std::endl << Debug::exitMSG("Saindo...") << std::endl;
     exit(0);
 }
