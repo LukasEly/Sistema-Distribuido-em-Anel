@@ -34,6 +34,8 @@ Client::Client(std::string ipAddressNext, int port, std::string name, int tokenT
     dst.sin_port = htons(this->port); // porta de destino
     inet_pton(AF_INET, ipAddressNext.c_str(), &dst.sin_addr);
 
+    _removeToken = false;
+    _packetError = 0; 
 }
 
 std::string Client::toString() const {
@@ -103,18 +105,30 @@ bool Client::enqueueMessage(std::string destination, std::string message) {
 }
 
 void Client::removeToken() {
+
+    // std::cout << Debug::vermelho("Removendo token...") << std::endl;
+
     if(hasToken) {
         hasToken = false;
-        return;
     }
+
+    _removeToken = true;
+    std::cout << Debug::vermelho("Próximo token será removido.") << std::endl;
 }
 
 void Client::sendToken() {
-    if(this->hasToken) { // só manda o token se tiver com ele
-        Packet* packet = new Packet(9000, nullptr, "");
-        this->_sendPacket(packet);
-        delete packet;
+    if(!_removeToken) {
+        if(this->hasToken) { // só manda o token se tiver com ele
+            Packet* packet = new Packet(9000, nullptr, "");
+            this->_sendPacket(packet);
+            delete packet;
+        }
+    } else {
+        std::cout << Debug::vermelho("Token removido, não enviando.") << std::endl;
+        _removeToken = false;
     }
+
+    hasToken = false;
 }
 
 void Client::setPacketError(int percent) {
@@ -153,6 +167,8 @@ void Client::handleMessage(Packet* packet) {
         _sendPacket(packet);
     } else if (packet->getDestino() == "TODOS" && packet->getOrigem() == this->name) {
         std::cout << Debug::azul("Finalizando ciclo de mensagem enviada para TODOS: ") << packet->toString() << std::endl;
+        this->dequeueMessage();
+        sendToken();
     } else {
         std::cout << Debug::vermelho("Mensagem não é para mim, ignorando.") << std::endl;
         _sendPacket(packet);
@@ -162,7 +178,7 @@ void Client::handleMessage(Packet* packet) {
 void Client::handleToken(const Packet* packet) {
     std::cout << Debug::magenta("Pacote é um Token.") << std::endl;
     this->hasToken = true;
-    resetTokenTime();
+    evaluateTokenTime();
     if (messageQueue.empty()) {
         std::cout << Debug::vermelho("Pacote não possui mensagens.") << std::endl;
         sendToken();
@@ -171,11 +187,6 @@ void Client::handleToken(const Packet* packet) {
         Packet* msgPacket = messageQueue.front();
         _sendPacket(msgPacket);
         std::cout << Debug::verde("Pacote enviado: ") << msgPacket->toString() << std::endl;
-
-        if(msgPacket->getDestino() == "TODOS") {
-            this->dequeueMessage();
-            sendToken();
-        }
     }
 } 
 

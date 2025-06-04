@@ -30,6 +30,7 @@ class Client {
         std::list<Packet*> messageQueue; // melhor usar packet ou string?
 
         int _packetError; 
+        bool _removeToken;
 
         void _sendPacket(Packet* packet); // envia o pacote
 
@@ -43,8 +44,8 @@ class Client {
         bool enqueueMessage(std::string destination, std::string message); // já passa como packet ou como string?
         void dequeueMessage();
 
-        virtual void resetTokenTime() {} 
-
+        virtual void resetTokenTime() {} // função aplicada só pro tokenManager
+        virtual void evaluateTokenTime() {} // função aplicada só pro tokenManager
         // bool isCrcOk(const Packet* packet); // já ta definido em packet
         
         // funções de falhas

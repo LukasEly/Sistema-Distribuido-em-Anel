@@ -16,7 +16,7 @@ int LogStreamBuf::overflow(int c) {
 }
 
 void LogStreamBuf::saveLog(const std::string& log) {
-    std::ofstream logFile("log.txt", std::ios::app);
+    std::ofstream logFile("log1.txt", std::ios::app);
     if (logFile.is_open()) {
         logFile << log;
     } else {

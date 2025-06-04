@@ -29,7 +29,7 @@ class TokenManager : public Client {
         ~TokenManager() override;
 
         void resetTokenTime() override;
-        bool receivedToken(); // só sinaliza que recebeu o token para resetar o tempo, ou tratar o token
+        void evaluateTokenTime() override;
 };
 
 #endif
