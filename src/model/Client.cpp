@@ -66,21 +66,24 @@ bool Client::shouldCorruptPacket() {
     static std::mt19937 gen(rd());
     std::uniform_int_distribution<> dist(1, 100);
     valor = dist(gen);
-    printf("Valor gerado: %d, porcentagem de erro: %d\n", valor, _packetError);
     return valor <= _packetError;
 }
 
 void Client::_sendPacket(Packet* packet) {
-    std::cout << Debug::amarelo("Enviando pacote: ") << packet->toString() << std::endl;
 
     Packet* pacoteEnvio = packet; // ponteiro padrão
 
-    if (packet->getType() == 7777) {
+    if (packet->getType() == "MENSAGEM") {
         if(shouldCorruptPacket()) { // só corrompe pacotes de mensagem
             pacoteEnvio = new Packet(*packet); // faz uma cópia
             pacoteEnvio->setCrc32("123456789"); // corrompe o CRC só na cópia
             std::cout << Debug::vermelho("CRC corrompido propositalmente!") << std::endl;
         }
+        std::cout << Debug::amarelo("Enviando pacote: ") <<  Debug::onlyBlue("[") << Debug::onlyWhite(packet->getType()) << Debug::onlyBlue("]") <<  Debug::onlyBlue("[") << Debug::onlyWhite(packet->getEstado()) << Debug::onlyBlue("]") <<  Debug::onlyBlue("[") << Debug::onlyWhite(packet->getOrigem()) << Debug::onlyBlue("]") <<  Debug::onlyBlue("[") << Debug::onlyWhite(packet->getDestino()) << Debug::onlyBlue("]") <<  Debug::onlyBlue("[") << Debug::onlyWhite(packet->getCrc32()) << Debug::onlyBlue("]") <<  Debug::onlyBlue("[") << Debug::onlyWhite(packet->getPayload()) << Debug::onlyBlue("]") << std::endl;
+    } else if(packet->getType() == "TOKEN") {
+        std::cout << Debug::amarelo("Enviando pacote: ") <<  Debug::onlyMagenta("[") << Debug::onlyWhite(packet->getType()) <<  Debug::onlyMagenta("]") << std::endl;
+    } else {
+        std::cout << Debug::amarelo("Enviando pacote: ") << Debug::onlyRed("[") << Debug::onlyWhite(packet->toString()) << Debug::onlyRed("]") << std::endl;
     }
 
     std::vector<char> buffer;
@@ -89,7 +92,6 @@ void Client::_sendPacket(Packet* packet) {
     { // bloco para limitar o escopo do lock
         // std::lock_guard<std::mutex> lock(clientMutex); // protege o acesso ao socket
         sendto(clientSocket, buffer.data(), buffer.size(), 0, (struct sockaddr*)&dst, sizeof(dst));
-        std::cout << Debug::azul("Enviei pacote...\n");
     }
 
     if (pacoteEnvio != packet) {
@@ -153,19 +155,19 @@ void Client::setPacketError(int percent) {
 }
 
 void Client::handleMessage(Packet* packet) {
-    std::cout << Debug::azul("Pacote é uma mensagem ") << std::endl;;
+    std::cout << Debug::azul("Pacote é uma MENSAGEM.") << std::endl;;
 
     resetTokenTime();
 
     if (packet->getDestino() == this->name) {
         if(packet->getEstado() == "naoexiste") {
-            std::cout << Debug::verde("Mensagem recebida com sucesso: ") << packet->toString() << std::endl;
+            std::cout << Debug::mensagem("Mensagem recebida: ") << packet->getPayload() << std::endl;
             handleNotExist(packet);
         } else if(packet->getEstado() == "ACK") {
-            std::cout << Debug::verde("Mensagem recebida com sucesso: ") << packet->toString() << std::endl;
+            std::cout << Debug::info("Mensagem retornou com sucesso!") << std::endl;
             handleAck(packet);
         } else if(packet->getEstado() == "NACK") {
-            std::cout << Debug::vermelho("Mensagem com algum problema NACK: ") << packet->toString() << std::endl;
+            std::cout << Debug::vermelho("Mensagem com algum problema NACK") << std::endl;
             handleNack(packet);
         } else {
             std::cout << Debug::erro("Mensagem recebida, mas controle de ERRO inconsistente ") << packet->getEstado() << std::endl;
@@ -190,17 +192,17 @@ void Client::handleMessage(Packet* packet) {
         }
         
     } else if (packet->getDestino() == "TODOS" && packet->getOrigem() == this->name) {
-        std::cout << Debug::azul("Finalizando ciclo de mensagem enviada para TODOS: ") << packet->toString() << std::endl;
+        std::cout << Debug::azul("Finalizando ciclo de mensagem enviada para TODOS!") << std::endl;
         
         if(!packet->isCrcOk()) {
             if (messageQueue.empty()) {
                 std::cout << Debug::vermelho("Pacote não possui mensagens.") << std::endl;
                 sendToken();
             } else {
-                std::cout << Debug::amarelo("Pacote possui mensagens.") << std::endl;
+                std::cout << Debug::verde("Pacote possui mensagens.") << std::endl;
                 Packet* msgPacket = messageQueue.front();
                 _sendPacket(msgPacket);
-                std::cout << Debug::verde("Pacote enviado: ") << msgPacket->toString() << std::endl;
+                std::cout << Debug::verde("Pacote enviado!") << std::endl;
             }
         } else {
             this->dequeueMessage();
@@ -213,7 +215,7 @@ void Client::handleMessage(Packet* packet) {
 } 
 
 void Client::handleToken() {
-    std::cout << Debug::magenta("Pacote é um Token.") << std::endl;
+    std::cout << Debug::magenta("Pacote é um TOKEN.") << std::endl;
     this->hasToken = true;
     evaluateTokenTime();
     if (messageQueue.empty()) {
@@ -223,7 +225,7 @@ void Client::handleToken() {
         std::cout << Debug::amarelo("Pacote possui mensagens.") << std::endl;
         Packet* msgPacket = messageQueue.front();
         _sendPacket(msgPacket);
-        std::cout << Debug::verde("Pacote enviado: ") << msgPacket->toString() << std::endl;
+        std::cout << Debug::verde("Pacote enviado!") << std::endl;
     }
 } 
 
@@ -232,10 +234,10 @@ void Client::handleNack(const Packet* packet) {
         std::cout << Debug::vermelho("Fila de mensagens está vazia, não há o que reenviar.") << std::endl;
         return;
     } else {
-        std::cout << Debug::amarelo("Reenviando mensagem corrompida: ") << packet->toString() << std::endl;
+        std::cout << Debug::verde("Reenviando mensagem corrompida") << std::endl;
         Packet* msgPacket = messageQueue.front();
         _sendPacket(msgPacket);
-        std::cout << Debug::verde("Pacote reenviado: ") << msgPacket->toString() << std::endl;
+        std::cout << Debug::verde("Pacote reenviado!") << std::endl;
     }
 }
 
@@ -251,16 +253,16 @@ void Client::dequeueMessage() {
 
 void Client::handleNotExist(const Packet* packet) {
     if(packet->isCrcOk()) {
+        std::cout << Debug::verde("Pacote enviado com ACK!") << std::endl;
         Header* header = new Header("ACK", this->name, packet->getOrigem());
         Packet* msgPacket = new Packet(7777, header, packet->getPayload());
         _sendPacket(msgPacket);
-        std::cout << Debug::verde("Pacote enviado com ACK: ") << msgPacket->toString() << std::endl;
         delete msgPacket;
     } else {
+        std::cout << Debug::erro("Pacote enviado com NACK") << std::endl;
         Header* header = new Header("NACK", this->name, packet->getOrigem());
         Packet* msgPacket = new Packet(7777, header, packet->getPayload());
         _sendPacket(msgPacket);
-        std::cout << Debug::erro("Pacote enviado com NACK: ") << msgPacket->toString() << std::endl;
         delete msgPacket;
     }
 }

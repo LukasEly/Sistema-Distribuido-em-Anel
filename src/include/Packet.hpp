@@ -37,11 +37,11 @@ class Packet {
         void serialize(std::vector<char>& buffer);
         static Packet* deserialize(const std::vector<char>& buffer);
     
-        int getType() const { return type; }
-        std::string getDestino() const { return header->nomeDestino; }
-        std::string getOrigem() const { return header->nomeOrigem; }
-        std::string getEstado() const { return header->estado; }
-        std::string getCrc32() const { return header->crc32; }
+        std::string getType() const;
+        std::string getDestino() const { return header ? header->nomeDestino : ""; }
+        std::string getOrigem() const { return header ? header->nomeOrigem : ""; }
+        std::string getEstado() const { return header ? header->estado : ""; }
+        std::string getCrc32() const { return header ? header->crc32 : ""; }
         std::string getPayload() const { return payload; }
         
         void setCrc32(const std::string& crc32) { header->crc32 = crc32; }

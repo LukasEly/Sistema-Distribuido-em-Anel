@@ -17,28 +17,46 @@ namespace DebugColor {
 class Debug {
 public:
     static std::string amarelo(const std::string& msg) {
-        return DebugColor::WHITE + "[DEBUG] " + DebugColor::RESET + DebugColor::YELLOW + msg + DebugColor::RESET;
+        return DebugColor::WHITE + "[INFO] " + DebugColor::RESET + DebugColor::YELLOW + msg + DebugColor::RESET;
     }
     static std::string vermelho(const std::string& msg) {
-        return DebugColor::WHITE + "[DEBUG] " + DebugColor::RESET + DebugColor::RED + msg + DebugColor::RESET;
+        return DebugColor::WHITE + "[INFO] " + DebugColor::RESET + DebugColor::RED + msg + DebugColor::RESET;
     }
     static std::string verde(const std::string& msg) {
-        return DebugColor::WHITE + "[DEBUG] " + DebugColor::RESET + DebugColor::GREEN + msg + DebugColor::RESET;
+        return DebugColor::WHITE + "[INFO] " + DebugColor::RESET + DebugColor::GREEN + msg + DebugColor::RESET;
     }
     static std::string azul(const std::string& msg) {
-        return DebugColor::WHITE + "[DEBUG] " + DebugColor::RESET + DebugColor::BLUE + msg + DebugColor::RESET;
+        return DebugColor::WHITE + "[INFO] " + DebugColor::RESET + DebugColor::BLUE + msg + DebugColor::RESET;
     }
     static std::string magenta(const std::string& msg) {
-        return DebugColor::WHITE + "[DEBUG] " + DebugColor::RESET + DebugColor::MAGENTA + msg + DebugColor::RESET;
+        return DebugColor::WHITE + "[INFO] " + DebugColor::RESET + DebugColor::MAGENTA + msg + DebugColor::RESET;
     }
     static std::string ciano(const std::string& msg) {
-        return DebugColor::WHITE + "[DEBUG] " + DebugColor::RESET + DebugColor::CYAN + msg + DebugColor::RESET;
+        return DebugColor::WHITE + "[INFO] " + DebugColor::RESET + DebugColor::CYAN + msg + DebugColor::RESET;
     }
     static std::string branco(const std::string& msg) {
-        return DebugColor::WHITE + "[DEBUG] " + DebugColor::RESET + DebugColor::WHITE + msg + DebugColor::RESET;
+        return DebugColor::WHITE + "[INFO] " + DebugColor::RESET + DebugColor::WHITE + msg + DebugColor::RESET;
     }
     static std::string erro(const std::string& msg) {
         return DebugColor::WHITE + "[ERRO] " + DebugColor::RESET + DebugColor::RED + msg + DebugColor::RESET;
+    }
+    static std::string info(const std::string& msg) {
+        return DebugColor::WHITE + "[INFO] " + DebugColor::RESET + DebugColor::GREEN + msg + DebugColor::RESET;
+    }
+    static std::string mensagem(const std::string& msg) {
+        return DebugColor::WHITE + "[MENSAGEM] " + DebugColor::RESET + DebugColor::GREEN + msg + DebugColor::RESET;
+    }
+    static std::string onlyBlue(const std::string& msg) {
+        return DebugColor::BLUE + msg + DebugColor::RESET;
+    }
+    static std::string onlyWhite(const std::string& msg) {
+        return DebugColor::WHITE + msg + DebugColor::RESET;
+    }
+    static std::string onlyMagenta(const std::string& msg) {
+        return DebugColor::MAGENTA + msg + DebugColor::RESET;
+    }
+    static std::string onlyRed(const std::string& msg) {
+        return DebugColor::RED + msg + DebugColor::RESET;
     }
 };
 

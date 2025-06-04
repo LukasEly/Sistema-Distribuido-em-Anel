@@ -173,6 +173,16 @@ bool Packet::isCrcOk() const {
     return std::to_string(crc) == header->crc32;
 }
 
+std::string Packet::getType() const {
+    if(type == 7777) {
+        return "MENSAGEM";
+    } else if (type == 9000) {
+        return "TOKEN";
+    }
+
+    return "DESCONHECIDO";
+}   
+
 Packet::Packet(const Packet& other)
     : type(other.type), payload(other.payload)
 {

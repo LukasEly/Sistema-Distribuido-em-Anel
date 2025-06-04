@@ -136,7 +136,7 @@ void SigmaProtocol::start() {
                     continue;
                 }
                 client->setPacketError(valor);
-                std::cout << Debug::verde("[INFO] Porcentagem de erro definida para: ") << valor << "%" << std::endl;
+                std::cout << std::endl << Debug::info("Porcentagem de erro definida para: ") << valor << "%" << std::endl << std::endl;;
                 
                 break;
 
@@ -162,7 +162,7 @@ void SigmaProtocol::monitorSpecialPackets() {
     char buffer[1024];
     
     while (!stopThreadP) {
-        std::cout << Debug::amarelo("Esperando pacote...") << std::endl;
+        std::cout << std::endl << Debug::amarelo("[Esperando pacote...]") << std::endl;
         int bytesReceived = client->recv(buffer, sizeof(buffer) - 1); // -1 para garantir espaço para o terminador nulo
         if (bytesReceived > 0) {
             buffer[bytesReceived] = '\0';
@@ -172,11 +172,11 @@ void SigmaProtocol::monitorSpecialPackets() {
                 Packet* packet = Packet::deserialize(std::vector<char>(buffer, buffer + bytesReceived));
                 if (packet) {
                     // Debug::verde("Pacote desserializado com sucesso: " + packet->toString());
-                    if (packet->getType() == 9000) {
+                    if (packet->getType() == "TOKEN") {
                         std::this_thread::sleep_for(std::chrono::seconds(client->getTokenTimeout()));
                         client->handleToken(); 
                     }
-                    else if(packet->getType() == 7777) {
+                    else if(packet->getType() == "MENSAGEM") {
                         std::this_thread::sleep_for(std::chrono::seconds(client->getTokenTimeout()));
                         client->handleMessage(packet); 
                     }

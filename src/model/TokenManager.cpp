@@ -30,8 +30,8 @@ void TokenManager::_manageTokenTime() {
         }
     
         if(tokenTime >= this->numDevices*this->tokenTimeout+0.5) { // se exceder o tempo que cada device fica com o token
-            std::cout << "[DEBUG] Tempo do Token Excedido: " << tokenTime << " segundos" << std::endl;
-            std::cout << "Reenviando token" << std::endl;
+            std::cout << Debug::vermelho("Tempo do Token Excedido: ") << tokenTime << Debug::onlyRed(" segundos") << std::endl;
+            std::cout << Debug::verde("Reenviando token") << std::endl;
             _generateToken();
             resetTokenTime();
         }
@@ -40,14 +40,13 @@ void TokenManager::_manageTokenTime() {
 
 void TokenManager::resetTokenTime() {
     std::lock_guard<std::mutex> lock(tokenMutex); 
-    std::cout << "[DEBUG] Resetando Tempo do Token \n";
     tokenTime = 0; 
 }
 
 void TokenManager::evaluateTokenTime() {
     std::lock_guard<std::mutex> lock(tokenMutex); 
     if(tokenTime < this->numDevices*this->tokenTimeout-0.5) { // se chegou com mais de meio segundo antes do tempo limite
-        std::cout << "[DEBUG] Token Chegou antes do Tempo \n" << std::endl;
+        std::cout << Debug::vermelho("Token Chegou antes do Tempo!") << std::endl;
         this->removeToken();
     }
 
