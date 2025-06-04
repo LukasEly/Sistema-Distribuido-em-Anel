@@ -7,6 +7,7 @@
 #include <arpa/inet.h>
 #include <sys/select.h>
 #include <random>
+#include <mutex>
 
 #include "src/include/Debug.hpp"
 #include "Packet.hpp"
@@ -23,9 +24,11 @@ class Client {
         std::string name;
         int tokenTimeout;
         bool hasToken;
-
+    
+        std::mutex clientMutex; // mutex para proteger o acesso ao socket e à fila de mensagens
         int clientSocket;
         struct sockaddr_in dst;
+        struct sockaddr_in end;
 
         std::list<Packet*> messageQueue; // melhor usar packet ou string?
 
@@ -43,6 +46,8 @@ class Client {
 
         bool enqueueMessage(std::string destination, std::string message); // já passa como packet ou como string?
         void dequeueMessage();
+
+        int recv(char* buffer, size_t size); 
 
         virtual void resetTokenTime() {} // função aplicada só pro tokenManager
         virtual void evaluateTokenTime() {} // função aplicada só pro tokenManager

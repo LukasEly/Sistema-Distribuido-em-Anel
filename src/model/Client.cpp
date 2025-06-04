@@ -10,8 +10,9 @@ Client::Client(std::string ipAddressNext, int port, std::string name, int tokenT
         throw std::runtime_error("Erro ao criar socket");
     }
 
+    std::cout << Debug::verde("Socket criado") << std::endl;
+
     // Configurando o endereço do servidor
-    struct sockaddr_in end;
     std::memset(&end, 0, sizeof(end));
     end.sin_family = AF_INET;
     end.sin_addr.s_addr = INADDR_ANY;  // Aceita qualquer endereço
@@ -28,6 +29,8 @@ Client::Client(std::string ipAddressNext, int port, std::string name, int tokenT
         std::cerr << "Erro ao fazer bind!" << std::endl;
         throw std::runtime_error("Erro ao fazer bind");
     }   
+
+    std::cout << Debug::verde("Bind realizado na porta: ") << std::to_string(this->port) << std::endl;
 
     std::memset(&dst, 0, sizeof(dst));
     dst.sin_family = AF_INET;
@@ -49,6 +52,12 @@ std::string Client::toString() const {
 
 std::string Client::getName() const {
     return name;
+}
+
+int Client::recv(char* buffer, size_t size) {
+    std::lock_guard<std::mutex> lock(clientMutex); // protege o acesso ao socket
+    socklen_t addrLen = sizeof(end);
+    return recvfrom(clientSocket, buffer, size, 0, (struct sockaddr*)&end, &addrLen);
 }
 
 bool Client::shouldCorruptPacket() {
@@ -77,7 +86,10 @@ void Client::_sendPacket(Packet* packet) {
     std::vector<char> buffer;
     pacoteEnvio->serialize(buffer);
 
-    sendto(clientSocket, buffer.data(), buffer.size(), 0, (struct sockaddr*)&dst, sizeof(dst));
+    { // bloco para limitar o escopo do lock
+        std::lock_guard<std::mutex> lock(clientMutex); // protege o acesso ao socket
+        sendto(clientSocket, buffer.data(), buffer.size(), 0, (struct sockaddr*)&dst, sizeof(dst));
+    }
 
     if (pacoteEnvio != packet) {
         delete pacoteEnvio; // libera a cópia se foi criada

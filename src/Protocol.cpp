@@ -159,32 +159,10 @@ void SigmaProtocol::start() {
 
 void SigmaProtocol::monitorSpecialPackets() {
     char buffer[1024];
-    struct sockaddr_in serverAddr;
-    socklen_t addrLen = sizeof(serverAddr);
-
-    int sock = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sock < 0) {
-        perror("Socket error");
-        return;
-    }
-    std::cout << Debug::verde("Socket criado") << std::endl;
-
-    memset(&serverAddr, 0, sizeof(serverAddr));
-    serverAddr.sin_family = AF_INET;
-    serverAddr.sin_addr.s_addr = INADDR_ANY;
-    serverAddr.sin_port = htons(client->getPort());
-
-    if (bind(sock, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
-        perror("Bind failed");
-        close(sock);
-        return;
-    }
-    std::cout << Debug::verde("Bind realizado na porta: ") << std::to_string(client->getPort()) << std::endl;
-
+    
     while (!stopThreadP) {
         std::cout << Debug::amarelo("Esperando pacote...") << std::endl;
-        int bytesReceived = recvfrom(sock, buffer, sizeof(buffer) - 1, 0,
-                                    (struct sockaddr*)&serverAddr, &addrLen);
+        int bytesReceived = client->recv(buffer, sizeof(buffer) - 1); // -1 para garantir espaço para o terminador nulo
         if (bytesReceived > 0) {
             buffer[bytesReceived] = '\0';
             std::cout << Debug::amarelo("Pacote recebido: ") << std::string(buffer) << std::endl;

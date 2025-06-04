@@ -22,12 +22,6 @@ class Console {
         void clearScreen();
         void menu();
 
-        std::string createMessageUni();
-        std::string createMessageBroad();
-
-        bool removeToken();
-        bool addToken();
-
         void readInput(std::vector<std::string>& input);
 
         void printLog();
