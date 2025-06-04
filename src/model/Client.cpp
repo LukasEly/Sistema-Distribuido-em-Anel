@@ -55,7 +55,7 @@ std::string Client::getName() const {
 }
 
 int Client::recv(char* buffer, size_t size) {
-    std::lock_guard<std::mutex> lock(clientMutex); // protege o acesso ao socket
+    // std::lock_guard<std::mutex> lock(clientMutex); // protege o acesso ao socket
     socklen_t addrLen = sizeof(end);
     return recvfrom(clientSocket, buffer, size, 0, (struct sockaddr*)&end, &addrLen);
 }
@@ -87,8 +87,9 @@ void Client::_sendPacket(Packet* packet) {
     pacoteEnvio->serialize(buffer);
 
     { // bloco para limitar o escopo do lock
-        std::lock_guard<std::mutex> lock(clientMutex); // protege o acesso ao socket
+        // std::lock_guard<std::mutex> lock(clientMutex); // protege o acesso ao socket
         sendto(clientSocket, buffer.data(), buffer.size(), 0, (struct sockaddr*)&dst, sizeof(dst));
+        std::cout << Debug::azul("Enviei pacote...\n");
     }
 
     if (pacoteEnvio != packet) {
