@@ -18,7 +18,7 @@
 project(
 	'T1 labredes', 
 	'cpp', 
- 	default_options : ['cpp_std=c++20']
+ 	default_options : ['cpp_std=c++20', 'warning_level=3', 'werror=false', 'cpp_args=-Wall -Wextra -pedantic']
 )
 
 incdir = include_directories('src/include')

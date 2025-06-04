@@ -12,7 +12,6 @@
 #include "src/include/Debug.hpp"
 #include "Packet.hpp"
 
-#define LOCALPORT 6000
 #define MAX_DATA 10
 
 class Client {
@@ -64,7 +63,7 @@ class Client {
         int getPort() const { return port; }
 
         void handleMessage(Packet* packet);
-        void handleToken(const Packet* packet);
+        void handleToken();
         void handleAck(const Packet* packet);
         void handleNack(const Packet* packet);
         void handleNotExist(const Packet* packet);

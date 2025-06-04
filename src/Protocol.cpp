@@ -173,7 +173,7 @@ void SigmaProtocol::monitorSpecialPackets() {
                     // Debug::verde("Pacote desserializado com sucesso: " + packet->toString());
                     if (packet->getType() == 9000) {
                         std::this_thread::sleep_for(std::chrono::seconds(client->getTokenTimeout()));
-                        client->handleToken(packet); 
+                        client->handleToken(); 
                     }
                     else if(packet->getType() == 7777) {
                         std::this_thread::sleep_for(std::chrono::seconds(client->getTokenTimeout()));

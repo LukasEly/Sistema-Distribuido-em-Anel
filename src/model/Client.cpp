@@ -16,7 +16,7 @@ Client::Client(std::string ipAddressNext, int port, std::string name, int tokenT
     std::memset(&end, 0, sizeof(end));
     end.sin_family = AF_INET;
     end.sin_addr.s_addr = INADDR_ANY;  // Aceita qualquer endereço
-    end.sin_port = htons(LOCALPORT);  // Porta de escuta
+    end.sin_port = htons(this->port);  // Porta de escuta
 
     // permitindo reusar a socket pra ser menos estressante na hora de testar
     int opt = 1;
@@ -182,6 +182,7 @@ void Client::handleMessage(Packet* packet) {
             Header* header = new Header("NACK", this->name, packet->getOrigem());
             Packet* msgPacket = new Packet(7777, header, packet->getPayload());
             _sendPacket(msgPacket);
+            delete msgPacket;
             std::cout << Debug::erro("Pacote enviado com NACK: ") << msgPacket->toString() << std::endl;
         } else {
             _sendPacket(packet);
@@ -189,15 +190,28 @@ void Client::handleMessage(Packet* packet) {
         
     } else if (packet->getDestino() == "TODOS" && packet->getOrigem() == this->name) {
         std::cout << Debug::azul("Finalizando ciclo de mensagem enviada para TODOS: ") << packet->toString() << std::endl;
-        this->dequeueMessage();
-        sendToken();
+        
+        if(!packet->isCrcOk()) {
+            if (messageQueue.empty()) {
+                std::cout << Debug::vermelho("Pacote não possui mensagens.") << std::endl;
+                sendToken();
+            } else {
+                std::cout << Debug::amarelo("Pacote possui mensagens.") << std::endl;
+                Packet* msgPacket = messageQueue.front();
+                _sendPacket(msgPacket);
+                std::cout << Debug::verde("Pacote enviado: ") << msgPacket->toString() << std::endl;
+            }
+        } else {
+            this->dequeueMessage();
+            sendToken();
+        }
     } else {
         std::cout << Debug::vermelho("Mensagem não é para mim, ignorando.") << std::endl;
         _sendPacket(packet);
     }
 } 
 
-void Client::handleToken(const Packet* packet) {
+void Client::handleToken() {
     std::cout << Debug::magenta("Pacote é um Token.") << std::endl;
     this->hasToken = true;
     evaluateTokenTime();
@@ -240,11 +254,13 @@ void Client::handleNotExist(const Packet* packet) {
         Packet* msgPacket = new Packet(7777, header, packet->getPayload());
         _sendPacket(msgPacket);
         std::cout << Debug::verde("Pacote enviado com ACK: ") << msgPacket->toString() << std::endl;
+        delete msgPacket;
     } else {
         Header* header = new Header("NACK", this->name, packet->getOrigem());
         Packet* msgPacket = new Packet(7777, header, packet->getPayload());
         _sendPacket(msgPacket);
         std::cout << Debug::erro("Pacote enviado com NACK: ") << msgPacket->toString() << std::endl;
+        delete msgPacket;
     }
 }
 
