@@ -27,7 +27,6 @@ class SigmaProtocol {
 
         void start();
 
-        int getIpAddress() const;
         int getPort() const;
         int getTokenTimeout() const;
         bool hasTokenFlag() const;
